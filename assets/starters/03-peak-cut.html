@@ -1,0 +1,856 @@
+<!doctype html>
+<!-- Made with QunX Motion (qunx-motion) · © 2026 QunX (you may remove this line) -->
+<html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>MePocket Peak Cut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0C0D0F; --surface:#16171A; --line:#26282D;
+  --text:#EEF1EE; --muted:#8E9892; --green:#58F38E;
+}
+html,body{background:var(--bg)}
+body{color:var(--text);font-family:'IBM Plex Sans Thai',system-ui,sans-serif;padding-inline:16px;padding-block:24px 40px}
+.page{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.head{display:flex;align-items:center;gap:14px}
+.head svg{width:44px;height:44px;flex:none}
+.head h1{font:700 22px/1.2 'Anuphan',sans-serif;margin:0}
+.head p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+/* player */
+.player{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.screen{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;overflow:hidden;background:#000;cursor:pointer}
+.bigplay{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;background:rgba(23,24,27,.78);color:var(--green);display:grid;place-items:center;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.bigplay svg{width:36px;height:36px;margin-left:4px}
+.controls{display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--surface)}
+.cbtn{flex:none;width:40px;height:40px;border-radius:12px;border:0;background:transparent;color:var(--text);display:grid;place-items:center;cursor:pointer}
+.cbtn:hover{background:#202227}
+.cbtn:focus-visible,.track:focus-visible,.chap:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.cbtn svg{width:20px;height:20px}
+.cbtn.off{color:var(--muted)}
+.time{flex:none;font:500 13px/1 'IBM Plex Mono',monospace;color:var(--muted);font-variant-numeric:tabular-nums;padding-inline:6px}
+.track{position:relative;flex:1;min-width:0;height:32px;cursor:pointer;touch-action:none;display:flex;align-items:center}
+.rail{position:relative;width:100%;height:6px;border-radius:3px;background:#2A2C31;overflow:hidden}
+.fill{position:absolute;inset:0;background:var(--green);transform-origin:0 50%;transform:scaleX(0)}
+.tick{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--surface)}
+.knob{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;left:0;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.chapters{display:flex;flex-wrap:wrap;gap:8px}
+.chap{display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 14px;font:500 14px 'Anuphan',sans-serif;cursor:pointer}
+.chap b{font:500 12px 'IBM Plex Mono',monospace;color:#5F6863}
+.chap.on{border-color:var(--green);color:var(--text)}
+.chap.on b{color:var(--green)}
+.hint{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.hint kbd{font:500 12px 'IBM Plex Mono',monospace;background:#1D1F23;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--text)}
+@media (max-width:520px){ #btnRestart{display:none} .time{font-size:12px;padding-inline:2px} }
+.player:fullscreen{width:100vw;height:100vh;border:0;border-radius:0;background:#000;display:flex;flex-direction:column}
+.player:fullscreen .screen{flex:1;aspect-ratio:auto;background:#000}
+.player:fullscreen .controls{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.75));transition:opacity .3s}
+.player:fullscreen .tick{background:#000}
+.player.idle:fullscreen .controls{opacity:0}
+.player.idle:fullscreen .screen{cursor:none}
+/* fallback fullscreen for phones and in-app viewers that refuse the Fullscreen API */
+.player.ffs{position:fixed;inset:0;z-index:9999;border:0;border-radius:0;background:#000;display:flex;flex-direction:column}
+.player.ffs .screen{flex:1;aspect-ratio:auto;background:#000}
+.player.ffs .controls{position:absolute;left:0;right:0;bottom:0;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(0,0,0,.8));transition:opacity .3s}
+.player.ffs .tick{background:#000}
+.player.idle.ffs .controls{opacity:0}
+body.noscroll{overflow:hidden}
+
+/* ================= STAGE 1920×1080 ================= */
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#000;overflow:hidden;color:#F2F5F2;font-family:'Anuphan',sans-serif;pointer-events:none}
+.stage *{box-sizing:border-box}
+#bgc{position:absolute;left:0;top:0;width:1920px;height:1080px}
+.vig{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 45%,rgba(0,0,0,.6) 100%)}
+.scene{position:absolute;inset:0;visibility:hidden;transform-origin:50% 50%}
+#s1{visibility:visible}
+.w{display:inline-block}
+.num{font-variant-numeric:tabular-nums}
+.zoomer{position:absolute;inset:0;transform-origin:50% 50%}
+
+/* S1 opening line */
+.orow{position:absolute;left:0;top:50%;height:240px;margin-top:-120px;display:flex;align-items:center;gap:46px;white-space:nowrap;color:#F2F5F2;font:700 150px/1 'Anuphan',sans-serif;letter-spacing:-.03em}
+.ologo{width:196px;height:196px;flex:none;overflow:visible}
+.burst{position:absolute;left:50%;top:50%;width:640px;height:640px;margin:-320px 0 0 -320px;border-radius:50%;border:6px solid #58F38E;opacity:0}
+.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(88,243,142,.35),rgba(88,243,142,0) 60%);opacity:0}
+.ow .g{color:#58F38E;font-weight:700}
+.ow.lite{font-weight:500;letter-spacing:-.02em}
+#o2{margin-left:64px}
+.odiv{display:block;flex:none;width:3px;height:150px;margin:0 30px;border-radius:2px;background:rgba(242,245,242,.28)}
+.ow{display:inline-block}
+
+/* S2 / captions */
+.kin{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.kline{font:700 140px/1.15 'Anuphan',sans-serif;letter-spacing:-.025em;white-space:nowrap;display:flex;gap:40px}
+.acc{color:#7DFFAB}
+.cap{position:absolute;left:0;right:0;text-align:center;font:700 96px/1.2 'Anuphan',sans-serif;letter-spacing:-.02em;display:flex;justify-content:center;gap:30px}
+.side{position:absolute;left:130px;top:330px;width:710px}
+.eyebrow{display:flex;align-items:center;gap:14px;font:500 24px/1 'IBM Plex Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:#7DFFAB;margin-bottom:28px}
+.eyebrow::before{content:"";width:12px;height:12px;border-radius:50%;background:currentColor}
+.side h2{font:700 80px/1.12 'Anuphan',sans-serif;letter-spacing:-.02em;margin:0}
+.side p{font:400 32px/1.5 'Anuphan',sans-serif;color:rgba(242,245,242,.7);margin:26px 0 0;max-width:600px}
+
+/* S3 card stack */
+#stack{position:absolute;left:880px;top:190px;width:940px;height:680px}
+.acard{position:absolute;left:0;top:0;width:1000px;height:620px;border-radius:60px;padding:50px 54px;color:#13202E;overflow:hidden;transform-origin:50% 50%;box-shadow:0 30px 50px -24px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.5)}
+.acard.save{background:linear-gradient(135deg,#8FF0B6 0%,#5FE39A 55%,#43D384 100%)}
+.acard.usd{background:linear-gradient(135deg,#C9DCFF 0%,#86B4F6 55%,#5B93EA 100%)}
+.acard.fcd{background:linear-gradient(135deg,#FAC7D2 0%,#F3A3B5 55%,#EA88A0 100%)}
+.ring{position:absolute;right:-150px;bottom:-190px;width:480px;height:480px;border-radius:50%;border:74px solid rgba(255,255,255,.22)}
+.ac-top{display:flex;align-items:center;gap:28px;position:relative}
+.coin{width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.6);display:grid;place-items:center;font:700 58px/1 'Anuphan',sans-serif;flex:none}
+.ac-name{font:700 52px/1.15 'Anuphan',sans-serif}
+.ac-sub{font:500 26px/1.3 'Anuphan',sans-serif;opacity:.72;margin-top:4px}
+.acct{margin-left:auto;align-self:flex-start;background:rgba(255,255,255,.55);border-radius:999px;padding:14px 24px;font:500 26px/1 'IBM Plex Mono',monospace;letter-spacing:.04em}
+.lbl{font:700 28px/1.3 'Anuphan',sans-serif;position:relative}
+.bal{font:700 100px/1.08 'Anuphan',sans-serif;letter-spacing:-.02em;position:relative}
+.approx{font:600 28px/1.3 'Anuphan',sans-serif;opacity:.65;position:relative}
+.ac-mid{margin-top:46px}
+.ac-bot{position:absolute;left:54px;right:54px;bottom:46px;display:flex;align-items:flex-end;justify-content:space-between;border-top:2px solid rgba(19,32,46,.1);padding-top:26px}
+.ac-bot b{display:block;font:700 40px/1.2 'Anuphan',sans-serif;margin-top:6px}
+.book{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.5);border-radius:999px;padding:20px 30px;font:700 28px/1 'Anuphan',sans-serif}
+.book svg{width:30px;height:30px}
+
+/* S4 wall */
+.wall{position:absolute;left:50%;top:50%;width:2304px;height:2972px;margin:-1486px 0 0 -1152px;display:flex;gap:34px}
+.col{display:flex;flex-direction:column;gap:34px;flex:none}
+.tile{width:300px;height:300px;border-radius:26px;padding:26px;display:flex;flex-direction:column;justify-content:space-between;color:#13202E}
+.tile b{font:700 34px/1.15 'Anuphan',sans-serif}
+.tile small{display:block;font:500 20px/1.3 'IBM Plex Mono',monospace;opacity:.7;margin-top:8px}
+.tile .tp{font:700 64px/1 'Anuphan',sans-serif}
+.tile .tb{height:14px;border-radius:7px;background:rgba(19,32,46,.15);overflow:hidden}
+.tile .tb i{display:block;height:100%;background:#13202E;border-radius:7px}
+.tile.dark{color:#EEF1EE}
+.tile.dark .tb{background:rgba(255,255,255,.15)}
+.tile.dark .tb i{background:#7DFFAB}
+
+/* glass cards */
+.glass{background:linear-gradient(160deg,rgba(40,58,46,.8),rgba(12,20,15,.88));border:1.5px solid rgba(160,255,196,.16);border-radius:48px;box-shadow:0 30px 60px -24px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.1)}
+#gcam{position:absolute;inset:0}
+#gcard{position:absolute;left:440px;top:340px;width:1040px;height:500px;padding:50px 56px}
+.g-top{display:flex;align-items:center;gap:30px}
+.g-ico{width:116px;height:116px;border-radius:30px;background:#58F38E;display:grid;place-items:center;flex:none}
+.g-ico svg{width:60px;height:60px}
+.g-top b{display:block;font:700 48px/1.2 'Anuphan',sans-serif}
+.g-top span{font:500 30px/1.3 'Anuphan',sans-serif;color:rgba(242,245,242,.65)}
+.g-amt{display:flex;align-items:baseline;gap:18px;margin-top:30px}
+.g-amt b{font:700 120px/1.05 'Anuphan',sans-serif;letter-spacing:-.02em}
+.g-amt span{font:500 40px 'IBM Plex Mono',monospace;color:rgba(242,245,242,.55)}
+.g-bot{position:absolute;left:56px;right:56px;bottom:46px;display:flex;align-items:center;justify-content:space-between}
+.g-dots{display:flex;align-items:center;gap:22px}
+.g-dots small{font:500 26px 'IBM Plex Mono',monospace;color:rgba(242,245,242,.6);margin-right:10px}
+.g-dots span{width:34px;height:34px;border-radius:50%;border:3px solid rgba(242,245,242,.35);display:grid;place-items:center}
+.g-dots i{width:34px;height:34px;border-radius:50%;background:#58F38E;transform:scale(0)}
+#gbtn{background:#58F38E;color:#0F1A12;font:700 34px/1 'Anuphan',sans-serif;padding:26px 54px;border-radius:999px}
+.okwrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.okring{position:relative;width:240px;height:240px;display:grid;place-items:center}
+.okring svg.spin{position:absolute;inset:0}
+.okc{width:150px;height:150px;border-radius:50%;background:#58F38E;display:grid;place-items:center;box-shadow:0 0 40px rgba(88,243,142,.4)}
+.okc svg{width:84px;height:84px}
+.toast{margin-top:60px;display:flex;align-items:center;gap:26px;background:#F4F6F3;color:#17181B;border-radius:28px;padding:26px 40px 26px 28px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.toast svg{width:62px;height:62px}
+.toast b{font:600 36px/1.2 'Anuphan',sans-serif}
+.toast em{font:700 36px/1.2 'Anuphan',sans-serif;font-style:normal;color:#18994F}
+
+/* S6 phone flow */
+.pcopy{position:absolute;left:150px;top:300px;width:880px}
+.steps{display:flex;gap:12px;width:420px;margin-bottom:44px}
+.steps span{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.14);overflow:hidden}
+.steps i{display:block;height:100%;background:#58F38E;transform-origin:0 50%;transform:scaleX(0)}
+.caps{position:relative;height:420px}
+.pcap{position:absolute;left:0;top:0;width:100%}
+.pcap h2{font:700 88px/1.12 'Anuphan',sans-serif;letter-spacing:-.02em;margin:0}
+.pcap p{font:400 32px/1.5 'Anuphan',sans-serif;color:rgba(242,245,242,.7);margin:26px 0 0;max-width:640px}
+.phone{position:absolute;left:1210px;top:90px;width:440px;height:900px;border-radius:72px;background:#0A0A0B;border:10px solid #2B2D33;box-shadow:0 40px 80px -30px rgba(0,0,0,.8)}
+.pscreen{position:absolute;inset:0;border-radius:62px;overflow:hidden;background:#17181B}
+.island{position:absolute;left:50%;top:14px;width:120px;height:34px;margin-left:-60px;background:#000;border-radius:20px;z-index:5}
+.sbar{position:absolute;left:0;right:0;top:0;height:60px;display:flex;justify-content:space-between;align-items:center;padding:4px 38px 0;font:600 18px 'Anuphan',sans-serif;z-index:4}
+.sbar svg{width:44px;height:16px}
+.scr{position:absolute;inset:0;padding:78px 26px 30px;display:flex;flex-direction:column}
+.s-eye{font:500 19px/1.3 'Anuphan',sans-serif;color:#8E9892}
+.s-title{font:700 32px/1.25 'Anuphan',sans-serif;margin:4px 0 20px}
+.field{background:#202227;border-radius:24px;padding:16px 20px}
+.field small{display:block;font-size:17px;color:#8E9892;margin-bottom:10px}
+.frow{display:flex;align-items:center;gap:14px}
+.frow .dot{width:34px;height:34px;border-radius:50%;flex:none}
+.frow b{font:600 23px/1.2 'Anuphan',sans-serif;flex:1}
+.frow em{font:500 16px 'IBM Plex Mono',monospace;color:#8E9892;font-style:normal}
+.swap{align-self:center;width:46px;height:46px;border-radius:50%;background:#17181B;border:2px solid #2E3036;display:grid;place-items:center;margin:-10px 0;position:relative;z-index:2}
+.swap svg{width:22px;height:22px}
+.amt{margin-top:22px}
+.amt small{font-size:17px;color:#8E9892}
+.amt-row{display:flex;align-items:baseline;gap:10px;margin-top:4px}
+.amt-row b{font:700 58px/1.15 'Anuphan',sans-serif}
+.amt-row span{font:500 22px 'IBM Plex Mono',monospace;color:#8E9892}
+.caret{display:inline-block;width:3px;height:50px;background:#58F38E;align-self:center}
+.amt p{margin:6px 0 0;font-size:17px;color:#8E9892}
+.memo{margin-top:18px}
+.pbtn{position:absolute;left:26px;right:26px;bottom:36px;height:72px;border-radius:36px;background:#58F38E;color:#0F1A12;display:grid;place-items:center;font:600 24px 'Anuphan',sans-serif}
+.pbtn.ghost{background:transparent;border:2px solid #34373D;color:#EEF1EE}
+.tap{position:absolute;left:178px;top:776px;width:64px;height:64px;border-radius:50%;border:3px solid #fff;background:rgba(255,255,255,.25);opacity:0;z-index:6}
+.center{align-items:center;text-align:center}
+.fid{position:relative;width:200px;height:200px;margin-top:90px}
+.fid svg{position:absolute;inset:0;width:200px;height:200px}
+.scanl{position:absolute;left:24px;right:24px;top:20px;height:4px;border-radius:2px;background:#58F38E;box-shadow:0 0 18px 4px rgba(88,243,142,.6);opacity:0}
+.fbadge{position:absolute;right:-6px;bottom:-6px;width:64px;height:64px;border-radius:50%;background:#58F38E;display:grid;place-items:center;border:5px solid #17181B}
+.fbadge svg{position:static;width:34px;height:34px}
+.fid-t{font:700 36px/1.25 'Anuphan',sans-serif;margin:34px 0 8px}
+.fid-s{position:relative;height:30px;width:100%}
+.fid-s span{position:absolute;left:0;right:0;font:500 21px/1.4 'Anuphan',sans-serif;color:#8E9892}
+.fid-s span.ok{color:#58F38E}
+.pin-a{margin-top:22px;font:500 18px 'IBM Plex Mono',monospace;color:#58F38E;background:rgba(88,243,142,.1);padding:8px 16px;border-radius:999px}
+.okc2{width:108px;height:108px;border-radius:50%;background:#58F38E;display:grid;place-items:center;margin-top:24px}
+.okc2 svg{width:60px;height:60px}
+.ok-t{font:700 32px/1.25 'Anuphan',sans-serif;margin:20px 0 4px}
+.pin-s{font-size:19px;line-height:1.45;color:#8E9892;margin:0}
+.slip{margin-top:24px;width:100%;background:#F4F6F3;color:#17181B;border-radius:28px;padding:24px 26px;text-align:left}
+.slip-h{display:flex;align-items:center;gap:10px;font:700 21px 'Anuphan',sans-serif}
+.slip-h svg{width:34px;height:34px}
+.slip-h span{margin-left:auto;font:500 17px 'Anuphan',sans-serif;color:#5E6661}
+.slip-amt{font:700 42px/1.2 'Anuphan',sans-serif;margin-top:14px}
+.slip-fee{font-size:16px;color:#5E6661}
+.slip hr{border:0;border-top:2px dashed #CDD3CE;margin:16px 0 12px}
+.slip-r{display:flex;justify-content:space-between;gap:12px;font-size:18px;line-height:1.9}
+.slip-r span{color:#5E6661}
+.slip-r b{font-weight:600}
+.slip-r .mono{font:500 16px 'IBM Plex Mono',monospace}
+
+/* S7 lyrics card */
+#lcard{position:absolute;left:460px;top:250px;width:1000px;height:580px;padding:50px 60px}
+.l-head{display:flex;align-items:center;justify-content:space-between;font:500 30px 'Anuphan',sans-serif;color:rgba(242,245,242,.7)}
+.l-head div{display:flex;gap:16px}
+.l-head i{display:block;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.1)}
+.lwin{position:relative;height:400px;overflow:hidden;margin-top:26px}
+#lyr{position:absolute;left:0;top:0;right:0}
+.ly{font:700 66px/100px 'Anuphan',sans-serif;opacity:.28;white-space:nowrap;letter-spacing:-.01em}
+
+/* S8 outro */
+.olock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#F2F5F2}
+.olock .orow2{display:flex;align-items:center;gap:46px;font:700 170px/1 'Anuphan',sans-serif;letter-spacing:-.03em}
+.olock .tag{font:600 34px/1.4 'Anuphan',sans-serif;text-transform:uppercase;letter-spacing:.34em;color:rgba(242,245,242,.7);margin:56px 0 0 .34em;display:flex;align-items:center;gap:34px}
+.olock .tag .g{color:#58F38E}
+</style>
+
+<main class="page">
+  <header class="head">
+    <svg viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="26" fill="#17181b"/><path d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle cx="66" cy="56" r="8" fill="#17181b"/></svg>
+    <div>
+      <h1>MePocket Peak Cut</h1>
+      <p>Motion graphic · 36 seconds · 1920×1080 · black edition</p>
+    </div>
+  </header>
+
+  <div class="player" id="player">
+    <div class="screen" id="screen">
+      <div class="stage" id="stage">
+        
+        <div class="flash" id="flash"></div>
+
+        <!-- S2 · line after the zoom-through -->
+        <section class="scene" id="s2">
+          <div class="zoomer" id="z2">
+            <div class="kin">
+              <div class="kline"><span class="w">Many</span><span class="w">Pockets.</span></div>
+              <div class="kline acc"><span class="w">One</span><span class="w">place.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- S3 · card stack -->
+        <section class="scene" id="s3">
+          <div class="side">
+            <div class="eyebrow">Pockets</div>
+            <h2><span class="w">Baht</span> <span class="w">or</span> <span class="w">dollars.</span><br><span class="w acc">Always</span> <span class="w acc">in</span> <span class="w acc">view.</span></h2>
+            <p>Swap between Pockets in a single move.</p>
+          </div>
+          <div id="stack"></div>
+        </section>
+
+        <!-- S4 · goal wall -->
+        <section class="scene" id="s4">
+          <div id="wallrot" style="position:absolute;inset:0"><div class="wall" id="wall"></div></div>
+        </section>
+
+        <!-- S5 · transfer, glass card -->
+        <section class="scene" id="s5">
+          <div class="cap" id="cap5" style="top:130px"><span class="w">Move</span><span class="w">it</span><span class="w">in</span><span class="w acc">seconds.</span></div>
+          <div id="gcam">
+            <div class="glass" id="gcard">
+              <div class="g-top">
+                <div class="g-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#0F1A12" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h14l-4-4M20 16H6l4 4"/></svg></div>
+                <div><b>Pocket Save → Japan trip</b><span>Note: Flight tickets</span></div>
+              </div>
+              <div class="g-amt"><b class="num" id="gamt">0.00</b><span>THB</span></div>
+              <div class="g-bot">
+                <div class="g-dots"><small>PIN</small><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span><span><i></i></span></div>
+                <div id="gbtn">Confirm</div>
+              </div>
+            </div>
+          </div>
+          <div class="okwrap">
+            <div class="okring" id="okring">
+              <svg class="spin" id="spin" viewBox="0 0 240 240" fill="none"><circle cx="120" cy="120" r="108" stroke="#58F38E" stroke-width="6" stroke-linecap="round" stroke-dasharray="40 26" opacity=".7"/></svg>
+              <div class="okc" id="okc"><svg viewBox="0 0 60 60" fill="none" stroke="#0F1A12" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"><path id="okpath" d="M17 31l9 9 18-19" stroke-dasharray="42" stroke-dashoffset="42"/></svg></div>
+            </div>
+            <div class="toast" id="toast">
+              <svg viewBox="0 0 96 96"><rect width="96" height="96" rx="26" fill="#17181b"/><path d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle cx="66" cy="56" r="8" fill="#17181b"/></svg>
+              <b>Transfer complete · 1,500.00 THB</b><em>View slip</em>
+            </div>
+          </div>
+        </section>
+
+        <!-- S6 · transfer, phone flow with Face ID -->
+        <section class="scene" id="s6">
+          <div class="pcopy" id="pcopy">
+            <div class="steps"><span><i></i></span><span><i></i></span><span><i></i></span></div>
+            <div class="caps">
+              <div class="pcap" id="pc1"><div class="eyebrow">Step 1 / 3</div><h2><span class="w">Type</span> <span class="w">the amount.</span></h2><p>Choose where it comes from and where it goes.</p></div>
+              <div class="pcap" id="pc2"><div class="eyebrow">Step 2 / 3</div><h2><span class="w">Glance</span> <span class="w">to confirm.</span></h2><p>Face ID approves the transfer in a blink.</p></div>
+              <div class="pcap" id="pc3"><div class="eyebrow">Step 3 / 3</div><h2><span class="w">Keep</span> <span class="w">every slip.</span></h2><p>Each transfer is saved with its own slip number.</p></div>
+            </div>
+          </div>
+          <div class="phone" id="phone">
+            <div class="pscreen">
+              <div class="island"></div>
+              <div class="sbar"><span>19:42</span><svg viewBox="0 0 44 16" fill="#EEF1EE"><rect x="0" y="10" width="4" height="6" rx="1"/><rect x="6" y="7" width="4" height="9" rx="1"/><rect x="12" y="4" width="4" height="12" rx="1"/><rect x="18" y="1" width="4" height="15" rx="1"/><rect x="27" y="2" width="15" height="12" rx="3" fill="none" stroke="#EEF1EE" stroke-width="1.6"/><rect x="29.5" y="4.5" width="9" height="7" rx="1.5"/></svg></div>
+
+              <div class="scr" id="scrA">
+                <div class="s-eye">Move money</div>
+                <div class="s-title">Transfer between Pockets</div>
+                <div class="field"><small>From</small><div class="frow"><span class="dot" style="background:#58F38E"></span><b>Pocket Save</b><em>฿48,250.00</em></div></div>
+                <div class="swap"><svg viewBox="0 0 24 24" fill="none" stroke="#58F38E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4v15M4 15l4 4 4-4M16 20V5M12 9l4-4 4 4"/></svg></div>
+                <div class="field"><small>To a Pocket or goal box</small><div class="frow"><span class="dot" style="background:#B7F542"></span><b>Japan trip</b><em>฿18,600.00</em></div></div>
+                <div class="amt"><small>Amount</small>
+                  <div class="amt-row"><b class="num" id="amtA">0.00</b><i class="caret" id="caret"></i><span>THB</span></div>
+                  <p>Estimated to receive <span class="num" id="amtB">0.00</span> THB</p>
+                </div>
+                <div class="field memo"><small>Note</small><div class="frow"><b style="font-weight:500">Flight tickets</b></div></div>
+                <div class="pbtn" id="btnReview">Review</div>
+              </div>
+
+              <div class="scr center" id="scrB">
+                <div class="fid">
+                  <svg id="faceW" viewBox="0 0 100 100" fill="none" stroke="#EEF1EE" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 30V18a8 8 0 0 1 8-8h12M70 10h12a8 8 0 0 1 8 8v12M90 70v12a8 8 0 0 1-8 8H70M30 90H18a8 8 0 0 1-8-8V70"/><path d="M36 38v8M64 38v8M51 40v14h-5M38 66c7 6 17 6 24 0"/></svg>
+                  <svg id="faceG" viewBox="0 0 100 100" fill="none" stroke="#58F38E" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0"><path d="M10 30V18a8 8 0 0 1 8-8h12M70 10h12a8 8 0 0 1 8 8v12M90 70v12a8 8 0 0 1-8 8H70M30 90H18a8 8 0 0 1-8-8V70"/><path d="M36 38v8M64 38v8M51 40v14h-5M38 66c7 6 17 6 24 0"/></svg>
+                  <div class="scanl" id="scanl"></div>
+                  <div class="fbadge" id="fbadge"><svg viewBox="0 0 24 24" fill="none" stroke="#0F1A12" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12.5l4 4 8-9"/></svg></div>
+                </div>
+                <div class="fid-t">Face ID</div>
+                <div class="fid-s"><span id="fidWait">Look at your phone to confirm</span><span class="ok" id="fidOk" style="opacity:0">Verified</span></div>
+                <div class="pin-a">1,500.00 THB → Japan trip</div>
+                <div class="pbtn ghost">Use PIN instead</div>
+              </div>
+
+              <div class="scr center" id="scrC">
+                <div class="okc2" id="okc2"><svg viewBox="0 0 60 60" fill="none" stroke="#17181b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path id="okpath2" d="M17 31l9 9 18-19" stroke-dasharray="42" stroke-dashoffset="42"/></svg></div>
+                <div class="ok-t">Transfer complete</div>
+                <p class="pin-s">The money is recorded at the destination.</p>
+                <div class="slip" id="slip">
+                  <div class="slip-h"><svg viewBox="0 0 96 96"><rect width="96" height="96" rx="26" fill="#17181b"/><path d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle cx="66" cy="56" r="8" fill="#17181b"/></svg>MePocket<span>Transfer</span></div>
+                  <div class="slip-amt">1,500.00 THB</div>
+                  <div class="slip-fee">Fee 0.00 THB</div>
+                  <hr>
+                  <div class="slip-r"><span>From</span><b>Pocket Save</b></div>
+                  <div class="slip-r"><span>To</span><b>Japan trip</b></div>
+                  <div class="slip-r"><span>Date</span><b>25 Sep 2026 · 19:42</b></div>
+                  <div class="slip-r"><span>Slip no.</span><b class="mono">MP2509-004182</b></div>
+                </div>
+                <div class="pbtn ghost">Back to home</div>
+              </div>
+              <div class="tap" id="tap"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- S7 · features, lyric-style -->
+        <section class="scene" id="s7">
+          <div class="cap" id="cap7" style="top:450px"><span class="w">One</span><span class="w">app.</span><span class="w acc">Every</span><span class="w acc">tool.</span></div>
+          <div class="glass" id="lcard">
+            <div class="l-head"><span>What you can do</span><div><i></i><i></i></div></div>
+            <div class="lwin"><div id="lyr">
+              <div class="ly">Save on autopilot.</div>
+              <div class="ly">Box every goal.</div>
+              <div class="ly">Hide your balance.</div>
+              <div class="ly">Style your card.</div>
+              <div class="ly">Lock with a glance.</div>
+            </div></div>
+          </div>
+        </section>
+
+        <!-- S1 · opening: logo assembles, pans right along the line, zooms through -->
+        <section class="scene" id="s1">
+          <div class="burst" id="burst1"></div>
+          <div class="zoomer" id="z1">
+            <div class="orow" id="orow">
+              <svg class="ologo" id="l1" viewBox="0 0 96 96"><rect width="96" height="96" rx="26" fill="#17181b"/><rect x=".5" y=".5" width="95" height="95" rx="25.5" fill="none" stroke="rgba(255,255,255,.12)"/><path class="p-body" d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path class="p-top" d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle class="p-coin" cx="66" cy="56" r="8" fill="#17181b"/></svg>
+              <span class="ow" id="o0">MePocket</span>
+              <i class="odiv" id="odiv"></i>
+              <span class="ow lite" id="o1">Every <span class="g">baht.</span></span><span class="ow lite" id="o2">Every <span class="g">goal.</span></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- S8 · outro: same assembly, ends on the lockup -->
+        <section class="scene" id="s8">
+          <div class="burst" id="burst8"></div>
+          <div class="olock">
+            <div class="orow2" id="row8">
+              <svg class="ologo" id="l8" viewBox="0 0 96 96"><rect width="96" height="96" rx="26" fill="#17181b"/><rect x=".5" y=".5" width="95" height="95" rx="25.5" fill="none" stroke="rgba(255,255,255,.12)"/><path class="p-body" d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path class="p-top" d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle class="p-coin" cx="66" cy="56" r="8" fill="#17181b"/></svg>
+              <span class="ow" id="wm8">MePocket</span>
+            </div>
+            <p class="tag" id="tag8"><span class="w">Every baht</span><span class="w g">•</span><span class="w">Every goal</span></p>
+          </div>
+        </section>
+      </div>
+      <div class="bigplay" id="bigplay" hidden><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg></div>
+    </div>
+
+    <div class="controls">
+      <button class="cbtn" id="btnPlay" aria-label="Play">
+        <svg id="icPlay" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>
+        <svg id="icPause" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z"/></svg>
+      </button>
+      <button class="cbtn" id="btnRestart" aria-label="Restart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5"/></svg></button>
+      <span class="time" id="time">0:00 / 0:36</span>
+      <div class="track" id="track" role="slider" tabindex="0" aria-label="Position in clip" aria-valuemin="0" aria-valuemax="35" aria-valuenow="0">
+        <div class="rail" id="rail"><div class="fill" id="fill"></div></div>
+        <div class="knob" id="knob"></div>
+      </div>
+      <button class="cbtn" id="btnLoop" aria-label="Loop" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3M20 6H9a5 5 0 0 0-5 5M7 21l-3-3 3-3M4 18h11a5 5 0 0 0 5-5"/></svg></button>
+      <button class="cbtn" id="btnFs" aria-label="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </div>
+  </div>
+
+  <nav class="chapters" id="chapters" aria-label="Scenes"></nav>
+  <p class="hint"><kbd>Space</kbd> เล่น/หยุด · <kbd>←</kbd> <kbd>→</kbd> เลื่อนทีละ 1 วิ · <kbd>F</kbd> เต็มจอ · อยากได้ไฟล์ MP4 ให้กดเต็มจอแล้วอัดหน้าจอ แถบควบคุมจะซ่อนเองเมื่อไม่ขยับเมาส์</p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+  const fmt = (v, d=2) => v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+  const END = 36.5;
+  const CHAPTERS = [
+    {t:0,    n:'Opening'},
+    {t:7.5,  n:'Pockets'},
+    {t:13.6, n:'Goal boxes'},
+    {t:16.8, n:'Transfer'},
+    {t:21.7, n:'Face ID'},
+    {t:28.6, n:'Features'},
+    {t:32.0, n:'Outro'}
+  ];
+  const stage = $('#stage'), screen = $('#screen'), player = $('#player');
+
+  const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement) || player.classList.contains('ffs');
+  function fit(){
+    const w = screen.clientWidth, h = screen.clientHeight;
+    if (isFs() && h > w){
+      // phone held upright: turn the frame sideways so it fills the screen
+      const s = Math.min(w/1080, h/1920);
+      stage.style.transform = `translate(${(w+1080*s)/2}px,${(h-1920*s)/2}px) rotate(90deg) scale(${s})`;
+    } else {
+      const s = Math.min(w/1920, h/1080);
+      stage.style.transform = `translate(${(w-1920*s)/2}px,${(h-1080*s)/2}px) scale(${s})`;
+    }
+  }
+  new ResizeObserver(fit).observe(screen); fit();
+
+  /* ---------- account cards: sample figures, account numbers masked ---------- */
+  const bookIco = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3Z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>';
+  const CARDS = [
+    {cls:'save', sym:'฿', sc:'#169A55', name:'Pocket Save',      sub:'Thai savings account',     acct:'•••• 4203', bal:48250, cur:'THB', approx:'', sep:'0.00 THB'},
+    {cls:'usd',  sym:'$', sc:'#2663C8', name:'Pocket USD',       sub:'US dollar account',        acct:'•••• 0118', bal:1280,  cur:'USD', approx:'≈ 41,600.00 THB',  sep:'0.00 USD'},
+    {cls:'fcd',  sym:'$', sc:'#C23A62', name:'Pocket FCD - USD', sub:'Foreign currency deposit', acct:'•••• 9071', bal:3450,  cur:'USD', approx:'≈ 112,125.00 THB', sep:'0.00 USD'}
+  ];
+  $('#stack').innerHTML = CARDS.map(c => `
+    <div class="acard ${c.cls}">
+      <div class="ring"></div>
+      <div class="ac-top">
+        <div class="coin" style="color:${c.sc}">${c.sym}</div>
+        <div><div class="ac-name">${c.name}</div><div class="ac-sub">${c.sub}</div></div>
+        <div class="acct">${c.acct}</div>
+      </div>
+      <div class="ac-mid">
+        <div class="lbl">Available balance</div>
+        <div class="bal num">${fmt(c.bal)} ${c.cur}</div>
+        ${c.approx ? `<div class="approx">${c.approx}</div>` : ''}
+      </div>
+      <div class="ac-bot">
+        <div><div class="lbl">Set aside</div><b>${c.sep}</b></div>
+        <div class="book">${bookIco}Passbook ›</div>
+      </div>
+    </div>`).join('');
+
+  /* ---------- goal wall (7 × 9, centre tile is the first box the camera sees) ---------- */
+  const GOALS = ['Emergency fund','New tablet','Tuition','Gift for Mom','Concert','Car repair','Cat food','New camera','Beach trip','Condo deposit','Running shoes','Online course','Next year','Road trip'];
+  const COLS = ['#B7F542','#58F38E','#FFB86B','#F4A7B9','#8DB8FF','#26332B','#F4F6F3','#7DE8D0'];
+  let gi = 0, wallHTML = '';
+  for (let c = 0; c < 7; c++){
+    wallHTML += '<div class="col">';
+    for (let r = 0; r < 9; r++){
+      const k = gi++;
+      if (c === 3 && r === 4){
+        wallHTML += `<div class="tile" style="background:#B7F542"><div><b>Japan trip</b><small>Goal ฿30,000</small></div><div class="tp num">62%</div><div class="tb"><i style="width:62%"></i></div></div>`;
+        continue;
+      }
+      const col = COLS[(k*5 + c) % COLS.length], pct = 18 + (k*37) % 78;
+      const target = [50,22,45,8,6,12,3,28,15,120,5,9,60,20][k % 14];
+      wallHTML += `<div class="tile${col === '#26332B' ? ' dark' : ''}" style="background:${col}">
+        <div><b>${GOALS[k % GOALS.length]}</b><small>Goal ฿${target},000</small></div>
+        <div class="tp num">${pct}%</div>
+        <div class="tb"><i style="width:${pct}%"></i></div></div>`;
+    }
+    wallHTML += '</div>';
+  }
+  $('#wall').innerHTML = wallHTML;
+
+  /* ---------- timeline helpers ---------- */
+  let tl;
+  const BLUR_IN = {opacity:0, filter:'blur(22px)', x:40, scale:1.35};
+  const SHARP   = {opacity:1, filter:'blur(0px)', x:0, scale:1};
+  function sceneIn(id, at, dur=.6){
+    tl.fromTo(id, {autoAlpha:0, scale:.92}, {autoAlpha:1, scale:1, duration:dur, ease:'power3.out'}, at);
+  }
+  function sceneOut(id, at, dur=.55){
+    tl.fromTo(id, {autoAlpha:1, scale:1}, {autoAlpha:0, scale:1.12, duration:dur, ease:'power2.in', immediateRender:false}, at);
+  }
+  function words(targets, at, stagger=.14, dur=.75){
+    tl.fromTo(targets, BLUR_IN, {...SHARP, duration:dur, stagger, ease:'expo.out'}, at);
+  }
+  // V1 logo build: tile pops in, white top slides down, green body rises, coin snaps in
+  function assemble(logo, burst, at, big){
+    tl.fromTo(burst, {scale:0, opacity:.9}, {scale:1.9, opacity:0, duration:1.2, ease:'expo.out'}, at + .1);
+    tl.fromTo(logo, {scale:0, rotation:-14, transformOrigin:'50% 50%'}, {scale:big, rotation:0, duration:.85, ease:'back.out(1.6)'}, at);
+    tl.fromTo(logo + ' .p-top', {y:-26, opacity:0}, {y:0, opacity:1, duration:.45}, at + .5);
+    tl.fromTo(logo + ' .p-body', {y:30, scaleY:.2, opacity:0, transformOrigin:'50% 100%'}, {y:0, scaleY:1, opacity:1, duration:.6, ease:'back.out(1.8)'}, at + .65);
+    tl.fromTo(logo + ' .p-coin', {scale:0, transformOrigin:'50% 50%'}, {scale:1, duration:.45, ease:'back.out(3)'}, at + 1.0);
+  }
+  // short green flash on a beat
+  function beat(at, peak=.55){
+    tl.fromTo('#flash', {opacity:peak}, {opacity:0, duration:.45, ease:'power2.out', immediateRender:false}, at);
+  }
+  function counter(el, to, dur, at, dec=2, pre='', suf=''){
+    const o = {v:0};
+    el.textContent = pre + fmt(0, dec) + suf;
+    tl.fromTo(o, {v:0}, {v:to, duration:dur, ease:'power2.out', onUpdate:() => { el.textContent = pre + fmt(o.v, dec) + suf; }}, at);
+  }
+
+  function build(){
+    tl = gsap.timeline({paused:true, defaults:{ease:'power3.out', duration:.6}});
+
+    /* ===== S1 · opening 0 → 5.0: assemble, slide, pan right, zoom through ===== */
+    const box = el => ({l: el.offsetLeft, r: el.offsetLeft + el.offsetWidth});
+    const L = $('#l1'), o = i => box($('#o'+i));
+    const xL = 960 - 98;                             // logo alone, centred
+    const xA = 960 - o(0).r / 2;                     // logo + name centred
+    const xB = 960 - (o(1).l + o(2).r) / 2;          // "Every baht. Every goal." centred
+    tl.fromTo('#orow', {x:xL}, {x:xL, duration:.01}, 0);
+    assemble('#l1', '#burst1', .15, 1.6);
+    tl.to(L, {scale:1, duration:.8, ease:'power3.inOut'}, 1.75);
+    tl.to('#orow', {x:xA, duration:.8, ease:'power3.inOut'}, 1.75);
+    tl.fromTo('#o0', BLUR_IN, {...SHARP, duration:.8, ease:'expo.out'}, 2.0);
+    tl.fromTo('#odiv', {scaleY:0, opacity:0}, {scaleY:1, opacity:1, duration:.5, ease:'expo.out'}, 2.55);
+    tl.to('#orow', {x:xB, duration:1.0, ease:'power4.inOut'}, 2.75);
+    words(['#o1','#o2'], 3.0, .38, .65);
+    beat(3.0); beat(3.38);
+    tl.fromTo('#z1', {scale:1}, {scale:6, duration:.75, ease:'power4.in'}, 4.2);
+    tl.to('#z1', {opacity:0, duration:.25, ease:'none'}, 4.7);
+    beat(4.9, .8);
+    tl.set('#s1', {autoAlpha:0}, 5.0);
+
+    /* ===== S2 · "All your Pockets. One app." 4.7 → 7.6 ===== */
+    tl.fromTo('#s2', {autoAlpha:0}, {autoAlpha:1, duration:.2}, 4.7);
+    tl.fromTo('#z2', {scale:.55}, {scale:1, duration:1.1, ease:'expo.out'}, 4.75);
+    words('#s2 .w', 4.8, .12, .7);
+    tl.to('#z2', {scale:1.06, duration:1.3, ease:'sine.inOut'}, 5.85);
+    tl.to('#z2', {scale:4.5, opacity:0, duration:.55, ease:'power3.in'}, 7.0);
+    tl.set('#s2', {autoAlpha:0}, 7.6);
+
+    /* ===== S3 · card stack 7.5 → 13.7 ===== */
+    sceneIn('#s3', 7.5, .4);
+    tl.fromTo('#s3 .eyebrow', {opacity:0, x:-30}, {opacity:1, x:0, duration:.5}, 7.6);
+    words('#s3 h2 .w', 7.65, .1);
+    tl.fromTo('#s3 .side p', {opacity:0, filter:'blur(14px)'}, {opacity:1, filter:'blur(0px)', duration:.6}, 8.3);
+    const K = .58, OX = 1000*(1-K)/2, OY = 620*(1-K)/2;
+    const SL = [
+      {x:0   - OX, y:300 - OY, rotation:-6, scale:K},
+      {x:170 - OX, y:150 - OY, rotation:2,  scale:K},
+      {x:340 - OX, y:0   - OY, rotation:9,  scale:K}
+    ];
+    const cardEls = $$('#stack .acard');
+    let order = [cardEls[0], cardEls[1], cardEls[2]];
+    order.forEach((c, i) => gsap.set(c, {...SL[i], zIndex:3 - i}));
+    [2, 1, 0].forEach((i, n) => {
+      const s = SL[i];
+      tl.fromTo(order[i], {x:s.x + 240, y:1100, rotation:s.rotation + 22}, {x:s.x, y:s.y, rotation:s.rotation, duration:1.1, ease:'expo.out'}, 7.65 + n*.14);
+    });
+    counter($('.bal', cardEls[0]), 48250, 1.3, 8.1, 2, '', ' THB');
+    const toSlot = (el, i, at, dur=.6) => tl.to(el, {x:SL[i].x, y:SL[i].y, rotation:SL[i].rotation, scale:SL[i].scale, duration:dur, ease:'power3.out'}, at);
+    function swapDown(at){
+      const [f, a, b] = order;
+      tl.set(f, {zIndex:4}, at);
+      tl.to(f, {y:SL[0].y + 520, rotation:-16, duration:.4, ease:'power2.in'}, at);
+      tl.set(f, {zIndex:1}, at + .4); tl.set(a, {zIndex:3}, at + .4); tl.set(b, {zIndex:2}, at + .4);
+      toSlot(f, 2, at + .4); toSlot(a, 0, at + .2); toSlot(b, 1, at + .26);
+      order = [a, b, f];
+    }
+    function swapUp(at){
+      const [f, a, b] = order;
+      tl.to(b, {y:SL[2].y - 560, rotation:18, duration:.4, ease:'power2.out'}, at);
+      tl.set(b, {zIndex:4}, at + .4); tl.set(f, {zIndex:2}, at + .4); tl.set(a, {zIndex:1}, at + .4);
+      toSlot(b, 0, at + .4); toSlot(f, 1, at + .42, .55); toSlot(a, 2, at + .46, .55);
+      tl.set(b, {zIndex:3}, at + 1.0);
+      order = [b, f, a];
+    }
+    swapDown(9.2); swapDown(10.3); swapUp(11.45); swapUp(12.55);
+    beat(9.6, .3); beat(10.7, .3); beat(11.85, .3); beat(12.95, .3);
+    sceneOut('#s3', 13.3, .5);
+
+    /* ===== S4 · goal wall: start on one box, pull back to all 13.6 → 16.9 ===== */
+    sceneIn('#s4', 13.6, .35);
+    beat(13.6, .5);
+    tl.fromTo('#wallrot', {rotation:-30, scale:2.7}, {rotation:-30, scale:1, duration:2.7, ease:'power2.inOut'}, 13.85);
+    $$('#wall .col').forEach((col, i) => {
+      if (i === 3) return;
+      const dir = i % 2 ? 1 : -1;
+      tl.fromTo(col, {y:0}, {y:dir * -110, duration:2.9, ease:'power1.in'}, 13.7);
+    });
+    sceneOut('#s4', 16.45, .5);
+
+    /* ===== S5 · transfer, glass card 16.8 → 21.9 ===== */
+    sceneIn('#s5', 16.8, .3);
+    words('#cap5 .w', 16.85, .12);
+    gsap.set('#gcard', {transformPerspective:2400, transformOrigin:'50% 50%'});
+    tl.fromTo('#gcard', {rotationY:-32, rotationX:20, y:300, opacity:0}, {rotationY:-12, rotationX:8, y:0, opacity:1, duration:1.1, ease:'expo.out'}, 17.0);
+    tl.to('#gcard', {rotationY:-2, rotationX:2, duration:2.8, ease:'sine.inOut'}, 17.9);
+    counter($('#gamt'), 1500, 1.0, 17.35);
+    tl.to('#cap5', {opacity:0, y:-60, duration:.5, ease:'power2.in'}, 18.3);
+    gsap.set('#gcam', {transformOrigin:'50% 58%'});
+    tl.to('#gcam', {scale:1.16, y:-40, duration:1.4, ease:'power2.inOut'}, 18.3);
+    $$('#gcard .g-dots i').forEach((d, i) => tl.fromTo(d, {scale:0}, {scale:1, duration:.2, ease:'back.out(3)'}, 18.85 + i*.13));
+    tl.fromTo('#gbtn', {scale:1}, {scale:.9, duration:.1, ease:'power1.inOut'}, 19.7);
+    tl.to('#gbtn', {scale:1, duration:.2}, 19.8);
+    tl.to('#gcam', {scale:1.3, opacity:0, duration:.45, ease:'power2.in'}, 20.0);
+    tl.fromTo('#okring', {scale:.5, opacity:0}, {scale:1, opacity:1, duration:.6, ease:'expo.out'}, 20.25);
+    tl.fromTo('#spin', {rotation:0, svgOrigin:'120 120'}, {rotation:300, svgOrigin:'120 120', duration:1.3, ease:'power2.out'}, 20.25);
+    tl.fromTo('#okc', {scale:0}, {scale:1, duration:.5, ease:'back.out(2.4)'}, 20.5);
+    beat(20.5, .6);
+    tl.fromTo('#okpath', {attr:{'stroke-dashoffset':42}}, {attr:{'stroke-dashoffset':0}, duration:.35, ease:'power2.out'}, 20.7);
+    tl.to('#spin', {opacity:0, scale:1.2, svgOrigin:'120 120', duration:.4}, 20.95);
+    tl.fromTo('#toast', {opacity:0, y:60}, {opacity:1, y:0, duration:.7, ease:'expo.out'}, 20.9);
+    sceneOut('#s5', 21.4, .5);
+
+    /* ===== S6 · phone flow with Face ID 21.7 → 28.9 ===== */
+    const t0 = 21.7;
+    sceneIn('#s6', t0, .4);
+    tl.fromTo('#phone', {y:1100, rotation:7}, {y:0, rotation:0, duration:1.1, ease:'expo.out'}, t0 + .05);
+    tl.fromTo('#s6 .steps', {opacity:0}, {opacity:1, duration:.4}, t0 + .15);
+    const segs = $$('#s6 .steps i');
+    const capIn = (id, at) => {
+      tl.fromTo(`${id} .eyebrow`, {opacity:0, x:-30}, {opacity:1, x:0, duration:.45}, at);
+      words(`${id} h2 .w`, at + .05, .12, .7);
+      tl.fromTo(`${id} p`, {opacity:0, filter:'blur(12px)'}, {opacity:1, filter:'blur(0px)', duration:.5}, at + .35);
+    };
+    const capOut = (id, at) => tl.to(`${id} > *`, {opacity:0, y:-30, duration:.3, stagger:.04, ease:'power2.in'}, at);
+    tl.set(['#pc2 .eyebrow','#pc2 p','#pc3 .eyebrow','#pc3 p','#pc2 .w','#pc3 .w'], {opacity:0}, t0);
+
+    capIn('#pc1', t0 + .25);
+    tl.fromTo(segs[0], {scaleX:0}, {scaleX:1, duration:2.2, ease:'none'}, t0 + .2);
+    tl.fromTo('#caret', {opacity:1}, {opacity:0, duration:.28, repeat:5, yoyo:true, ease:'steps(1)'}, t0 + .4);
+    counter($('#amtA'), 1500, .9, t0 + 1.0);
+    counter($('#amtB'), 1500, .9, t0 + 1.0);
+    tl.fromTo('#tap', {scale:1.7, opacity:0}, {scale:1, opacity:1, duration:.25}, t0 + 1.85);
+    tl.fromTo('#btnReview', {scale:1}, {scale:.95, duration:.1, ease:'power1.inOut'}, t0 + 2.1);
+    tl.to('#btnReview', {scale:1, duration:.2}, t0 + 2.2);
+    tl.to('#tap', {opacity:0, scale:1.3, duration:.25}, t0 + 2.2);
+
+    // → Face ID
+    tl.fromTo('#scrA', {xPercent:0}, {xPercent:-100, duration:.6, ease:'power3.inOut'}, t0 + 2.4);
+    tl.fromTo('#scrB', {xPercent:100}, {xPercent:0, duration:.6, ease:'power3.inOut'}, t0 + 2.4);
+    capOut('#pc1', t0 + 2.3);
+    capIn('#pc2', t0 + 2.6);
+    tl.fromTo(segs[1], {scaleX:0}, {scaleX:1, duration:2.05, ease:'none'}, t0 + 2.4);
+    tl.fromTo('#fbadge', {scale:0}, {scale:0, duration:.01}, t0 + 2.4);
+    tl.fromTo('#faceW', {scale:.85, opacity:0, transformOrigin:'50% 50%'}, {scale:1, opacity:1, duration:.5, ease:'back.out(2)'}, t0 + 2.85);
+    tl.fromTo('#scanl', {y:0, opacity:0}, {y:150, opacity:1, duration:.55, ease:'sine.inOut'}, t0 + 3.2);
+    tl.to('#scanl', {y:0, duration:.55, ease:'sine.inOut'}, t0 + 3.75);
+    tl.to('#scanl', {opacity:0, duration:.2}, t0 + 4.2);
+    tl.to('#faceW', {opacity:0, duration:.25}, t0 + 4.15);
+    tl.fromTo('#faceG', {opacity:0, scale:1.08, transformOrigin:'50% 50%'}, {opacity:1, scale:1, duration:.35}, t0 + 4.15);
+    tl.to('#fbadge', {scale:1, duration:.4, ease:'back.out(3)'}, t0 + 4.25);
+    beat(t0 + 4.25, .45);
+    tl.to('#fidWait', {opacity:0, y:-10, duration:.2}, t0 + 4.15);
+    tl.fromTo('#fidOk', {opacity:0, y:10}, {opacity:1, y:0, duration:.25}, t0 + 4.25);
+
+    // → slip
+    tl.fromTo('#scrB', {xPercent:0}, {xPercent:-100, duration:.6, ease:'power3.inOut'}, t0 + 4.65);
+    tl.fromTo('#scrC', {xPercent:100}, {xPercent:0, duration:.6, ease:'power3.inOut'}, t0 + 4.65);
+    capOut('#pc2', t0 + 4.55);
+    capIn('#pc3', t0 + 4.85);
+    tl.fromTo(segs[2], {scaleX:0}, {scaleX:1, duration:2.0, ease:'none'}, t0 + 4.65);
+    tl.fromTo('#okc2', {scale:0}, {scale:1, duration:.55, ease:'back.out(2.4)'}, t0 + 5.05);
+    tl.fromTo('#okpath2', {attr:{'stroke-dashoffset':42}}, {attr:{'stroke-dashoffset':0}, duration:.4}, t0 + 5.3);
+    tl.fromTo('#scrC .ok-t, #scrC .pin-s', {opacity:0, y:16}, {opacity:1, y:0, duration:.45, stagger:.08}, t0 + 5.35);
+    tl.fromTo('#slip', {y:240, opacity:0}, {y:0, opacity:1, duration:.8, ease:'expo.out'}, t0 + 5.55);
+    tl.fromTo('#scrC .pbtn', {opacity:0}, {opacity:1, duration:.4}, t0 + 5.9);
+    tl.to('#phone', {y:-1100, rotation:-6, duration:.6, ease:'power2.in'}, t0 + 6.75);
+    tl.to('#pcopy', {opacity:0, y:-40, duration:.4, ease:'power2.in'}, t0 + 6.7);
+    tl.set('#s6', {autoAlpha:0}, t0 + 7.4);
+
+    /* ===== S7 · features 28.6 → 32.2 ===== */
+    sceneIn('#s7', 28.6, .3);
+    words('#cap7 .w', 28.65, .14);
+    tl.to('#cap7', {opacity:0, y:-80, duration:.5, ease:'power2.in'}, 29.45);
+    gsap.set('#lcard', {transformPerspective:2400, transformOrigin:'50% 50%'});
+    tl.fromTo('#lcard', {rotationX:28, rotationY:20, y:320, opacity:0}, {rotationX:10, rotationY:12, y:0, opacity:1, duration:1.0, ease:'expo.out'}, 29.5);
+    tl.to('#lcard', {rotationX:3, rotationY:2, duration:2.4, ease:'sine.inOut'}, 30.3);
+    const lys = $$('#lyr .ly');
+    lys.forEach((ly, k) => {
+      const at = 29.85 + k*.42;
+      tl.to(ly, {opacity:1, duration:.3}, at);
+      if (k) tl.to(lys[k-1], {opacity:.28, duration:.3}, at);
+      if (k > 1) tl.to('#lyr', {y:-(k-1)*100, duration:.4, ease:'power2.inOut'}, at - .05);
+    });
+    sceneOut('#s7', 31.75, .5);
+
+    /* ===== S8 · outro 32.0 → 36.5: same assembly, lands on the lockup ===== */
+    const off8 = ($('#wm8').offsetWidth + 46) / 2;
+    tl.fromTo('#s8', {autoAlpha:0}, {autoAlpha:1, duration:.2}, 32.0);
+    tl.fromTo('#row8', {x:off8}, {x:off8, duration:.01}, 32.0);
+    assemble('#l8', '#burst8', 32.15, 1.6);
+    tl.to('#l8', {scale:1, duration:.8, ease:'power3.inOut'}, 33.7);
+    tl.to('#row8', {x:0, duration:.8, ease:'power3.inOut'}, 33.7);
+    tl.fromTo('#wm8', BLUR_IN, {...SHARP, duration:.8, ease:'expo.out'}, 33.95);
+    words('#tag8 .w', 34.5, .18, .7);
+    beat(34.5, .3);
+    tl.to({}, {duration:.01}, END - .01);
+
+    tl.time(END, false); tl.time(0, false);
+    tl.eventCallback('onUpdate', sync);
+    tl.eventCallback('onComplete', () => { if (loop) { tl.time(0, false); tl.play(); } else setPlaying(false); });
+  }
+
+  /* ---------- player ---------- */
+  let playing = false, loop = true;
+  const fill = $('#fill'), knob = $('#knob'), timeEl = $('#time'), track = $('#track');
+  const fmtT = t => { const s = Math.floor(t); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+  track.setAttribute('aria-valuemax', END);
+
+  const rail = $('#rail'), nav = $('#chapters');
+  const chapBtns = CHAPTERS.map((c, i) => {
+    if (i) { const tk = document.createElement('i'); tk.className = 'tick'; tk.style.left = (c.t/END*100) + '%'; rail.appendChild(tk); }
+    const b = document.createElement('button');
+    b.className = 'chap'; b.type = 'button';
+    b.innerHTML = `<b>${fmtT(c.t)}</b>${c.n}`;
+    b.addEventListener('click', () => seek(c.t + .02));
+    nav.appendChild(b); return b;
+  });
+
+  function sync(){
+    if (!tl) return;
+    const t = tl.time(), p = t / END;
+    fill.style.transform = `scaleX(${p})`;
+    knob.style.left = (p*100) + '%';
+    timeEl.textContent = fmtT(t) + ' / ' + fmtT(END);
+    track.setAttribute('aria-valuenow', t.toFixed(1));
+    track.setAttribute('aria-valuetext', fmtT(t));
+    let ci = 0; CHAPTERS.forEach((c, i) => { if (t >= c.t) ci = i; });
+    chapBtns.forEach((b, i) => b.classList.toggle('on', i === ci));
+  }
+  function setPlaying(v){
+    playing = v;
+    $('#icPlay').hidden = v; $('#icPause').hidden = !v;
+    $('#btnPlay').setAttribute('aria-label', v ? 'Pause' : 'Play');
+    $('#bigplay').hidden = v;
+    if (!v) player.classList.remove('idle');
+  }
+  function play(){ if (!tl) return; if (tl.time() >= END - .02) tl.time(0, false); tl.play(); setPlaying(true); }
+  function pause(){ if (!tl) return; tl.pause(); setPlaying(false); }
+  function toggle(){ playing ? pause() : play(); }
+  function seek(t){
+    if (!tl) return;
+    t = Math.max(0, Math.min(END, t));
+    tl.time(t, false); sync();
+    if (playing && t < END) tl.play();
+  }
+
+  $('#btnPlay').addEventListener('click', toggle);
+  $('#btnRestart').addEventListener('click', () => { seek(0); play(); });
+  $('#btnLoop').addEventListener('click', e => {
+    loop = !loop; e.currentTarget.classList.toggle('off', !loop);
+    e.currentTarget.setAttribute('aria-pressed', String(loop));
+  });
+  screen.addEventListener('click', toggle);
+
+  let wasPlaying = false, dragging = false;
+  const tAt = e => { const r = track.getBoundingClientRect(); return Math.max(0, Math.min(END, (e.clientX - r.left) / r.width * END)); };
+  track.addEventListener('pointerdown', e => {
+    dragging = true; wasPlaying = playing; if (tl) tl.pause();
+    track.setPointerCapture(e.pointerId);
+    if (tl) { tl.time(tAt(e), false); sync(); }
+  });
+  track.addEventListener('pointermove', e => { if (dragging && tl) { tl.time(tAt(e), false); sync(); } });
+  const endDrag = () => { if (!dragging) return; dragging = false; if (wasPlaying) play(); };
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+  track.addEventListener('keydown', e => {
+    if (!tl) return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); seek(tl.time() + (e.key === 'ArrowLeft' ? -1 : 1)); }
+    if (e.key === 'Home') { e.preventDefault(); seek(0); }
+    if (e.key === 'End')  { e.preventDefault(); seek(END); }
+  });
+
+  function enterFake(){ player.classList.add('ffs'); document.body.classList.add('noscroll'); requestAnimationFrame(fit); }
+  function exitFake(){ player.classList.remove('ffs', 'idle'); document.body.classList.remove('noscroll'); requestAnimationFrame(fit); }
+  function toggleFs(){
+    if (player.classList.contains('ffs')) { exitFake(); return; }
+    if (document.fullscreenElement || document.webkitFullscreenElement){
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document)?.catch?.(()=>{}); return;
+    }
+    const req = player.requestFullscreen || player.webkitRequestFullscreen;
+    if (!req) { enterFake(); return; }
+    try {
+      const r = req.call(player);
+      const lock = () => { try { window.screen.orientation?.lock?.('landscape')?.catch?.(()=>{}); } catch(_){} };
+      if (r && r.then) r.then(lock).catch(enterFake);
+      else setTimeout(() => { if (!document.fullscreenElement && !document.webkitFullscreenElement) enterFake(); else lock(); }, 300);
+    } catch(_) { enterFake(); }
+  }
+  $('#btnFs').addEventListener('click', toggleFs);
+  document.addEventListener('fullscreenchange', () => requestAnimationFrame(fit));
+  document.addEventListener('webkitfullscreenchange', () => requestAnimationFrame(fit));
+  window.addEventListener('resize', () => requestAnimationFrame(fit));
+  let idleT;
+  player.addEventListener('pointermove', () => {
+    player.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(() => { if (playing && isFs()) player.classList.add('idle'); }, 1600);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('button, .track')) { if (e.key === 'f' || e.key === 'F') toggleFs(); return; }
+    if (e.key === ' ' || e.key === 'k') { e.preventDefault(); toggle(); }
+    else if (e.key === 'ArrowLeft')  { e.preventDefault(); if (tl) seek(tl.time() - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); if (tl) seek(tl.time() + 1); }
+    else if (e.key === 'f' || e.key === 'F') toggleFs();
+    else if (e.key === 'Escape' && player.classList.contains('ffs')) exitFake();
+  });
+
+  const fontsReady = Promise.all([
+    document.fonts.load('700 170px Anuphan', 'MePocket keeps every baht'),
+    document.fonts.load('500 40px Anuphan', 'Multi'),
+    document.fonts.load('500 24px "IBM Plex Mono"', '0')
+  ]).catch(()=>{});
+  Promise.race([fontsReady, new Promise(r => setTimeout(r, 2500))]).then(() => {
+    if (!window.gsap) { timeEl.textContent = 'Animation library failed to load. Refresh the page.'; return; }
+    fit(); build(); sync();
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { tl.time(36, false); sync(); setPlaying(false); }
+    else play();
+  });
+})();
+</script>
+
+</body></html>

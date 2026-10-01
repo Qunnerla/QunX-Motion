@@ -1,0 +1,779 @@
+<!doctype html>
+<!-- Made with QunX Motion (qunx-motion) · © 2026 QunX (you may remove this line) -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MePocket Plans v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;700;800;900&family=Comic+Neue:wght@700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0C0D0F; --surface:#16171A; --line:#26282D;
+  --text:#EEF1EE; --muted:#8E9892; --green:#58F38E;
+}
+html,body{background:var(--bg)}
+body{color:var(--text);font-family:'IBM Plex Sans Thai',system-ui,sans-serif;padding-inline:16px;padding-block:24px 40px}
+.page{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.head{display:flex;align-items:center;gap:14px}
+.head svg{width:44px;height:44px;flex:none}
+.head h1{font:700 22px/1.2 'Anuphan',sans-serif;margin:0}
+.head p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+/* player */
+.player{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.screen{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;overflow:hidden;background:#000;cursor:pointer}
+.bigplay{position:absolute;left:50%;top:50%;width:84px;height:84px;margin:-42px 0 0 -42px;border-radius:50%;background:rgba(23,24,27,.78);color:var(--green);display:grid;place-items:center;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.bigplay svg{width:36px;height:36px;margin-left:4px}
+.controls{display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--surface)}
+.cbtn{flex:none;width:40px;height:40px;border-radius:12px;border:0;background:transparent;color:var(--text);display:grid;place-items:center;cursor:pointer}
+.cbtn:hover{background:#202227}
+.cbtn:focus-visible,.track:focus-visible,.chap:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.cbtn svg{width:20px;height:20px}
+.cbtn.off{color:var(--muted)}
+.time{flex:none;font:500 13px/1 'IBM Plex Mono',monospace;color:var(--muted);font-variant-numeric:tabular-nums;padding-inline:6px}
+.track{position:relative;flex:1;min-width:0;height:32px;cursor:pointer;touch-action:none;display:flex;align-items:center}
+.rail{position:relative;width:100%;height:6px;border-radius:3px;background:#2A2C31;overflow:hidden}
+.fill{position:absolute;inset:0;background:var(--green);transform-origin:0 50%;transform:scaleX(0)}
+.tick{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:var(--surface)}
+.knob{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;left:0;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+.chapters{display:flex;flex-wrap:wrap;gap:8px}
+.chap{display:flex;align-items:baseline;gap:8px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;padding:8px 14px;font:500 14px 'Anuphan',sans-serif;cursor:pointer}
+.chap b{font:500 12px 'IBM Plex Mono',monospace;color:#5F6863}
+.chap.on{border-color:var(--green);color:var(--text)}
+.chap.on b{color:var(--green)}
+.hint{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.hint kbd{font:500 12px 'IBM Plex Mono',monospace;background:#1D1F23;border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--text)}
+@media (max-width:520px){ #btnRestart{display:none} .time{font-size:12px;padding-inline:2px} }
+.player:fullscreen{width:100vw;height:100vh;border:0;border-radius:0;background:#000;display:flex;flex-direction:column}
+.player:fullscreen .screen{flex:1;aspect-ratio:auto;background:#000}
+.player:fullscreen .controls{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.75));transition:opacity .3s}
+.player:fullscreen .tick{background:#000}
+.player.idle:fullscreen .controls{opacity:0}
+.player.idle:fullscreen .screen{cursor:none}
+/* fallback fullscreen for phones and in-app viewers that refuse the Fullscreen API */
+.player.ffs{position:fixed;inset:0;z-index:9999;border:0;border-radius:0;background:#000;display:flex;flex-direction:column}
+.player.ffs .screen{flex:1;aspect-ratio:auto;background:#000}
+.player.ffs .controls{position:absolute;left:0;right:0;bottom:0;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(0,0,0,.8));transition:opacity .3s}
+.player.ffs .tick{background:#000}
+.player.idle.ffs .controls{opacity:0}
+body.noscroll{overflow:hidden}
+
+/* ================= STAGE 1920×1080 ================= */
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:#000;overflow:hidden;color:#F2F5F2;font-family:'Anuphan',sans-serif;pointer-events:none}
+.stage *{box-sizing:border-box}
+.scene{position:absolute;inset:0;visibility:hidden;transform-origin:50% 50%}
+#s1{visibility:visible}
+.w{display:inline-block}
+.num{font-variant-numeric:tabular-nums}
+.zoomer{position:absolute;inset:0;transform-origin:50% 50%}
+.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.16),rgba(255,255,255,0) 60%);opacity:0}
+.icon{width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* opening / outro lockups */
+.orow{position:absolute;left:0;top:50%;height:240px;margin-top:-120px;display:flex;align-items:center;gap:46px;white-space:nowrap;color:#F2F5F2;font:700 150px/1 'Anuphan',sans-serif;letter-spacing:-.03em}
+.ologo{width:196px;height:196px;flex:none;overflow:visible}
+.burst{position:absolute;left:50%;top:50%;width:640px;height:640px;margin:-320px 0 0 -320px;border-radius:50%;border:6px solid #58F38E;opacity:0}
+.ow{display:inline-block}
+.ow .g{color:#58F38E;font-weight:700}
+.ow.lite{font-weight:500;letter-spacing:-.02em}
+#o2{margin-left:64px}
+.odiv{display:block;flex:none;width:3px;height:150px;margin:0 30px;border-radius:2px;background:rgba(242,245,242,.28)}
+.olock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.orow2{display:flex;align-items:center;gap:46px;font:700 170px/1 'Anuphan',sans-serif;letter-spacing:-.03em}
+.otag{font:600 34px/1.4 'Anuphan',sans-serif;text-transform:uppercase;letter-spacing:.34em;color:rgba(242,245,242,.7);margin:56px 0 0 .34em;display:flex;align-items:center;gap:34px}
+.otag .g{color:#58F38E}
+.onote{margin-top:30px;font:500 22px/1 'IBM Plex Mono',monospace;color:rgba(242,245,242,.38)}
+
+/* app chrome: group toggle + tabs (the app's own controls at 2×) */
+#ui{position:absolute;left:120px;top:70px;width:760px}
+.gtog{position:relative;display:inline-flex;gap:4px;padding:6px;border:2px solid #2e3034;border-radius:24px;background:#131416}
+.gtog b{position:relative;z-index:1;display:block;padding:16px 28px;border-radius:18px;font:800 26px/1 'Anuphan',sans-serif;color:#d6d8db;white-space:nowrap}
+.gpill{position:absolute;left:0;top:6px;height:calc(100% - 12px);border-radius:18px;background:#2a2c31;border:2px solid #3a3d42}
+.tabs{position:relative;margin-top:22px;height:84px;padding:8px;border:2px solid #2e3034;border-radius:30px;background:#222327}
+.tset{position:absolute;inset:8px;display:flex;gap:8px}
+.tset b{position:relative;z-index:1;flex:1 1 auto;display:grid;place-items:center;border-radius:22px;font:800 26px/1 'Anuphan',sans-serif;letter-spacing:.06em;color:#8d9095;white-space:nowrap;padding:0 18px}
+.tpill{position:absolute;left:0;top:8px;height:calc(100% - 16px);border-radius:22px;background:#35373c}
+#tapRing{position:absolute;left:0;top:0;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:4px solid rgba(255,255,255,.9);background:rgba(255,255,255,.12);opacity:0;z-index:20}
+
+/* left column: plan poster type */
+.lp{position:absolute;left:120px;top:300px;width:900px;height:720px;visibility:hidden}
+.lp-name{font:800 116px/1 'Anuphan',sans-serif;letter-spacing:-.01em;white-space:nowrap;display:flex;gap:30px}
+.lp-badges{display:flex;gap:14px;margin-top:22px;height:52px}
+.lp-badges i{font:900 26px/1 'Anuphan',sans-serif;font-style:italic;padding:12px 18px;border-radius:10px;background:#ff4d5a;color:#fff}
+.lp-badges i.best{background:#9c62ff}
+.lp-badges i.silver{background:linear-gradient(135deg,#fff 0%,#dfe3e8 30%,#f8f9fb 52%,#c4cad2 76%,#eef0f3 100%);color:#17181b}
+.lp-badges i.gold{background:linear-gradient(135deg,#fff4c9 0%,#e3b04b 28%,#fff0b3 50%,#c28a26 74%,#f6d67e 100%);color:#1b1407}
+.lp-price{position:absolute;left:0;top:230px;display:flex;align-items:baseline;gap:26px;white-space:nowrap}
+.lp-price s{position:relative;text-decoration:none;font:800 64px/1 'Anuphan',sans-serif;color:#ff6b76}
+.lp-price s i{position:absolute;left:-6px;right:-6px;top:52%;height:6px;border-radius:3px;background:#ff6b76;transform-origin:0 50%}
+.lp-price strong{font:800 150px/1 'Anuphan',sans-serif;letter-spacing:-.02em}
+.lp-note{position:absolute;left:4px;top:400px;font:500 30px/1 'IBM Plex Mono',monospace;color:rgba(242,245,242,.55);letter-spacing:.04em}
+.lp-cap{position:absolute;left:0;top:500px;width:900px}
+.lp-cap p{position:absolute;left:0;top:0;margin:0;font:700 64px/1.16 'Anuphan',sans-serif;letter-spacing:-.015em}
+.lp-cap p span{display:block}
+.lp-cap .tiny{font-size:18px;letter-spacing:0;vertical-align:middle}
+.gold-t{background:linear-gradient(135deg,#fff4c9 0%,#e3b04b 28%,#fff0b3 50%,#c28a26 74%,#f6d67e 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* plan cards: the app's plans.css at 2× */
+#cam{position:absolute;left:1080px;top:0;width:780px;height:1080px;transform-origin:50% 50%}
+.pcard{--accent:#fff;--accent-ink:#17181b;--tag-bg:#fff;--tag-ink:#17181b;position:absolute;left:72px;top:90px;width:636px;display:flex;flex-direction:column;gap:26px;padding:32px 28px;border:2px solid #2c2e32;border-radius:48px;color:#fff;visibility:hidden;opacity:0;font-family:'Noto Sans Thai','Anuphan',sans-serif}
+.pcard.starter{background:linear-gradient(180deg,#2a2c31 0,#212226 440px,#1c1d20 960px)}
+.pcard.plus{--accent:#43d67a;--accent-ink:#0c1f12;--tag-bg:#43d67a;--tag-ink:#0c1f12;border-color:#24452f;background:linear-gradient(180deg,#1d4a2c 0,#18351f 380px,#172519 720px,#1b1c1e 1080px)}
+.pcard.ultra{--accent:#ff4d5a;--accent-ink:#fff;--tag-bg:rgba(255,77,90,.2);--tag-ink:#ffb0b6;border-color:#6a1a2a;background:linear-gradient(180deg,#8a1230 0,#5a0f22 400px,#33111a 760px,#1e1b1c 1120px)}
+.pcard.team{background:linear-gradient(180deg,#26282b 0,#202124 480px,#1c1d1f 1040px)}
+.pcard.scale{--accent:#eef0f3;--accent-ink:#17181b;border-color:#6b7078;background:linear-gradient(180deg,#5d636b 0,#3a3e44 380px,#25272b 740px,#1c1d1f 1080px)}
+.pcard.enterprise{--accent:#e3b04b;--accent-ink:#1b1407;padding-top:0;border:4px solid transparent;background:linear-gradient(180deg,#26221a 0,#1e1c19 520px,#1c1d1f 1040px) padding-box,linear-gradient(135deg,#fff4c9 0%,#e3b04b 28%,#fff0b3 50%,#c28a26 74%,#f6d67e 100%) border-box}
+.p-ribbon{margin:0 -28px 8px;padding:14px 20px;border-radius:40px 40px 0 0;background:linear-gradient(135deg,#fff4c9 0%,#e3b04b 28%,#fff0b3 50%,#c28a26 74%,#f6d67e 100%);color:#1b1407;font:900 20px/1 'Anuphan',sans-serif;letter-spacing:.05em;text-align:center}
+.p-head h2{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:0;font:900 42px/1.15 'Anuphan',sans-serif;letter-spacing:.01em}
+.p-badge{padding:6px 12px;border-radius:10px;background:#ff4d5a;color:#fff;font:900 19px/1.2 'Anuphan',sans-serif;font-style:italic;letter-spacing:.02em}
+.p-badge.best{background:#9c62ff}
+.pcard.scale .p-badge.best{background:linear-gradient(135deg,#fff 0%,#dfe3e8 30%,#f8f9fb 52%,#c4cad2 76%,#eef0f3 100%);color:#17181b}
+.p-head p{margin:10px 0 0;color:#9a9da2;font-size:23.7px;line-height:1.45}
+.pcard.scale .p-head p,.pcard.scale .p-price small,.pcard.scale .p-action p{color:#d2d5da}
+.p-hero{padding:26px 28px;border:2px solid rgba(255,255,255,.06);border-radius:30px;background:rgba(255,255,255,.05)}
+.p-hero b{display:flex;gap:18px;align-items:flex-start;font-size:28.8px;line-height:1.4}
+.p-hero b .icon{width:30px;height:30px;margin-top:6px;color:var(--accent)}
+.p-hero p{display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;margin:10px 0 0 48px;color:#a4a7ab;font-size:23.7px;line-height:1.45}
+.p-hero p span{color:#6f7277}
+.p-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.p-price s{color:#ff6b76;font-size:40px;font-weight:900;text-decoration-thickness:4px}
+.p-price strong{font-size:62px;font-weight:900;line-height:1.1}
+.p-price small{color:#a4a7ab;font-size:23px}
+.p-price .sub{flex-basis:100%;margin-top:-4px}
+.p-action{border:2px solid rgba(255,255,255,.08);border-radius:28px;overflow:hidden}
+.p-cta{display:grid;place-items:center;min-height:100px;border-radius:26px;background:var(--accent);color:var(--accent-ink);font-size:29.4px;font-weight:800;box-shadow:0 6px 0 rgba(0,0,0,.35)}
+.pcard.scale .p-cta{background:linear-gradient(135deg,#fff 0%,#dfe3e8 30%,#f8f9fb 52%,#c4cad2 76%,#eef0f3 100%);color:#17181b}
+.pcard.enterprise .p-cta{background:linear-gradient(135deg,#fff4c9 0%,#e3b04b 28%,#fff0b3 50%,#c28a26 74%,#f6d67e 100%);color:#1b1407}
+.p-action p{margin:0;padding:18px 20px;color:#a4a7ab;font-size:23px;text-align:center}
+.p-seats{display:grid;grid-template-columns:88px 1fr 88px;align-items:center;min-height:96px;padding:0 8px;border:2px solid rgba(255,255,255,.08);border-radius:28px;background:rgba(255,255,255,.04)}
+.p-seats span{display:grid;place-items:center;height:80px;border-radius:20px;font-size:40px;font-weight:700}
+.p-seats span:first-child{color:#55585d}
+.p-seats b{text-align:center;font-size:27.5px}
+.p-secondary{display:grid;place-items:center;min-height:96px;border:2px solid rgba(227,176,75,.35);border-radius:28px;background:rgba(255,255,255,.05);color:#f3d17a;font-size:27.5px;font-weight:800}
+.p-limits{padding:4px 24px 8px;border:2px solid rgba(255,255,255,.07);border-radius:30px;background:rgba(255,255,255,.04)}
+.p-limits h3{display:grid;grid-template-columns:32px minmax(0,1fr) 32px;gap:16px;align-items:center;margin:0;padding:22px 0 20px;border-bottom:2px solid rgba(255,255,255,.07);font-size:23.7px;font-weight:900;letter-spacing:.02em}
+.p-limits h3 .icon{width:30px;height:30px}
+.p-limits h3 .icon:last-child{color:#6f7277}
+.p-limit{display:grid;grid-template-columns:32px minmax(0,1fr);gap:16px;align-items:start;padding:22px 12px;margin:0 -12px;border-radius:18px;border-bottom:2px solid rgba(255,255,255,.06);color:#7d8085;font-size:24.3px}
+.p-limit:last-child{border-bottom:0}
+.p-limit.yes{color:#eceef0}
+.p-limit .icon{width:28px;height:28px;margin-top:4px}
+.p-limit.yes .icon{color:var(--accent)}
+.p-limit b{display:block;font-weight:800}
+.p-limit.no b{color:#b3b6ba}
+.p-limit em{display:inline-block;max-width:100%;margin-top:12px;padding:8px 16px;border-radius:10px;background:#3a3c41;color:#c3c5c9;font-size:21px;font-style:normal;font-weight:800;line-height:1.4}
+.p-limit.yes em{background:var(--tag-bg);color:var(--tag-ink)}
+.p-limit small{display:block;margin-top:10px;color:#6f7277;font-size:21px;line-height:1.35}
+.p-feat h3{display:flex;align-items:center;gap:14px;margin:4px 0 16px;color:#c9cbce;font-size:24.3px}
+.p-feat h3 .icon{width:30px;height:30px;color:var(--accent)}
+.p-feat.rest h3 .icon{color:#ff5a66}
+.p-feat ul{display:grid;gap:16px;margin:0;padding:0;list-style:none}
+.p-feat li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:16px;padding:10px 12px;margin:-10px -12px;border-radius:18px;color:#eceef0;font-size:24.3px;line-height:1.45}
+.p-feat li.no{color:#8a8d91}
+.p-feat li .icon{width:28px;height:28px;margin-top:4px}
+.p-feat li.yes .icon{color:var(--accent)}
+.p-feat li b{font-weight:800}
+.p-feat li small{display:block;margin-top:6px;color:#7d8085;font-size:21.8px;line-height:1.4}
+
+</style>
+
+<main class="page">
+  <header class="head">
+    <svg viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="26" fill="#17181b"/><path d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle cx="66" cy="56" r="8" fill="#17181b"/></svg>
+    <div>
+      <h1>MePocket Plans</h1>
+      <p>Motion graphic with sound · 1920×1080 · built from plans.js / plans.css</p>
+    </div>
+  </header>
+
+  <div class="player" id="player">
+    <div class="screen" id="screen">
+      <div class="stage" id="stage">
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 2.5c.7 5.3 3.2 7.8 8.5 8.5-5.3.7-7.8 3.2-8.5 8.5-.7-5.3-3.2-7.8-8.5-8.5 5.3-.7 7.8-3.2 8.5-8.5Z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 7.6-1.7"/></symbol>
+  <symbol id="i-infinity" viewBox="0 0 24 24"><path d="M12 12c-2-2.6-3.6-3.8-5.6-3.8a3.8 3.8 0 0 0 0 7.6c2 0 3.6-1.2 5.6-3.8Zm0 0c2 2.6 3.6 3.8 5.6 3.8a3.8 3.8 0 0 0 0-7.6c-2 0-3.6 1.2-5.6 3.8Z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="m18 6-12 12M6 6l12 12"/></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+</svg>
+        <div class="flash" id="flash"></div>
+
+        <!-- plans: app chrome, poster type, cards -->
+        <section class="scene" id="sp">
+          <div id="ui">
+            <div class="gtog" id="gtog"><i class="gpill" id="gpill"></i><b id="gInd">Individual plans</b><b id="gBiz">Business plans</b></div>
+            <div class="tabs" id="tabs">
+              <i class="tpill" id="tpill"></i>
+              <div class="tset" id="tsInd"><b data-t="starter">STARTER</b><b data-t="plus">PLUS</b><b data-t="ultra">ULTRA SMOOTH</b></div>
+              <div class="tset" id="tsBiz" style="opacity:0"><b data-t="team">TEAM</b><b data-t="scale">SCALE</b><b data-t="enterprise">ENTERPRISE</b></div>
+            </div>
+          </div>
+          <div id="posters"></div>
+          <div id="cam"></div>
+          <div id="tapRing"></div>
+        </section>
+
+        <!-- opening: logo assembles, pans right along the line, zooms through -->
+        <section class="scene" id="s1">
+          <div class="burst" id="burst1"></div>
+          <div class="zoomer" id="z1">
+            <div class="orow" id="orow">
+              <svg class="ologo" id="l1" viewBox="0 0 96 96"><rect width="96" height="96" rx="26" fill="#17181b"/><rect x=".5" y=".5" width="95" height="95" rx="25.5" fill="none" stroke="rgba(255,255,255,.12)"/><path class="p-body" d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path class="p-top" d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle class="p-coin" cx="66" cy="56" r="8" fill="#17181b"/></svg>
+              <span class="ow" id="o0">MePocket</span>
+              <i class="odiv" id="odiv"></i>
+              <span class="ow lite" id="o1">Pick a <span class="g">plan.</span></span><span class="ow lite" id="o2">Any <span class="g">plan.</span></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- outro -->
+        <section class="scene" id="s8">
+          <div class="burst" id="burst8"></div>
+          <div class="olock">
+            <div class="orow2" id="row8"><svg class="ologo" id="l8" viewBox="0 0 96 96"><rect width="96" height="96" rx="26" fill="#17181b"/><rect x=".5" y=".5" width="95" height="95" rx="25.5" fill="none" stroke="rgba(255,255,255,.12)"/><path class="p-body" d="M22 32h52a8 8 0 0 1 8 8v30a10 10 0 0 1-10 10H24A10 10 0 0 1 14 70V42a10 10 0 0 1 8-10Z" fill="#58f38e"/><path class="p-top" d="M27 20h38a8 8 0 0 1 8 8v4H22v-7a5 5 0 0 1 5-5Z" fill="#fff"/><circle class="p-coin" cx="66" cy="56" r="8" fill="#17181b"/></svg><span class="ow" id="wm8">MePocket</span></div>
+            <p class="otag" id="tag8"><span class="w">Pick a plan</span><span class="w g">•</span><span class="w">Any plan</span></p>
+            <p class="onote" id="note8">Plans are a simulation. No real payments.</p>
+          </div>
+        </section>
+      </div>
+      <div class="bigplay" id="bigplay" hidden><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg></div>
+    </div>
+
+    <div class="controls">
+      <button class="cbtn" id="btnPlay" aria-label="Play">
+        <svg id="icPlay" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12.5-7.5z"/></svg>
+        <svg id="icPause" viewBox="0 0 24 24" fill="currentColor" hidden><path d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z"/></svg>
+      </button>
+      <button class="cbtn" id="btnRestart" aria-label="Restart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5"/></svg></button>
+      <span class="time" id="time">0:00</span>
+      <div class="track" id="track" role="slider" tabindex="0" aria-label="Position in clip" aria-valuemin="0" aria-valuemax="35" aria-valuenow="0">
+        <div class="rail" id="rail"><div class="fill" id="fill"></div></div>
+        <div class="knob" id="knob"></div>
+      </div>
+ <button class="cbtn" id="btnSnd" aria-label="Sound" aria-pressed="true"><svg id="icSnd" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg><svg id="icMute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" hidden><path d="M4 9v6h4l5 4V5L8 9Z"/><path d="m17 9 5 6M22 9l-5 6"/></svg></button>
+      <button class="cbtn" id="btnLoop" aria-label="Loop" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l3 3-3 3M20 6H9a5 5 0 0 0-5 5M7 21l-3-3 3-3M4 18h11a5 5 0 0 0 5-5"/></svg></button>
+      <button class="cbtn" id="btnFs" aria-label="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    </div>
+  </div>
+
+  <nav class="chapters" id="chapters" aria-label="Scenes"></nav>
+  <p class="hint">🔊 มีเสียงเอฟเฟกต์ แตะจอหรือกด Play หนึ่งครั้งเพื่อเปิดเสียง · <kbd>Space</kbd> เล่น/หยุด · <kbd>←</kbd> <kbd>→</kbd> เลื่อนทีละ 1 วิ · <kbd>F</kbd> เต็มจอ · อยากได้ไฟล์ MP4 ให้กดเต็มจอแล้วอัดหน้าจอ แถบควบคุมจะซ่อนเองเมื่อไม่ขยับเมาส์</p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function(){
+  const $ = (s, r=document) => r.querySelector(s);
+  const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+  const fmt = (v, d=2) => v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+  let END = 70, CHAPTERS = [];
+  const stage = $('#stage'), screen = $('#screen'), player = $('#player');
+
+  const isFs = () => !!(document.fullscreenElement || document.webkitFullscreenElement) || player.classList.contains('ffs');
+  function fit(){
+    const w = screen.clientWidth, h = screen.clientHeight;
+    if (isFs() && h > w){
+      // phone held upright: turn the frame sideways so it fills the screen
+      const s = Math.min(w/1080, h/1920);
+      stage.style.transform = `translate(${(w+1080*s)/2}px,${(h-1920*s)/2}px) rotate(90deg) scale(${s})`;
+    } else {
+      const s = Math.min(w/1920, h/1080);
+      stage.style.transform = `translate(${(w-1920*s)/2}px,${(h-1080*s)/2}px) scale(${s})`;
+    }
+  }
+  new ResizeObserver(fit).observe(screen); fit();
+
+  /* ---------- plan data: copied from the app's plans.js ---------- */
+  const PLAN_CATALOG = [
+  {
+    id:'starter', group:'individual', name:'STARTER', badges:[], tagline:'สำหรับผู้เริ่มต้นที่ต้องการสร้างวินัยทางการเงินขั้นพื้นฐาน (ด้วยงบ 0 บาท)',
+    hero:['1 กระเป๋าหลัก / 5 กระเป๋าเป้าหมาย',['=','จำกัดวงเงินเป้าหมายสูงสุด ฿5,000 / กระเป๋า (เพื่อฝึกออมทีละก้าวอย่างยั่งยืน)'],['~','ไม่มีระบบค้นหาประวัติ (เพื่อฝึกความจำและการทบทวนรายจ่ายด้วยตนเอง)']],
+    oldPrice:'', price:'฿0', priceNote:'จ่ายครั้งเดียว (ใช้งานฟรีตลอดชีพ)', cta:'Get Starter', saveNote:'ประหยัดเงิน แต่อาจต้องใช้เวลาและความอดทนสูง',
+    limitsIcon:'lock', limitsTitle:'ข้อจำกัดระบบ (System Limits):',
+    limits:[
+      [false,'ธีมแอปพลิเคชัน','ล็อกการแสดงผลโหมดสว่าง (Light Mode) ตลอด 24 ชั่วโมง','เพื่อกระตุ้นความตื่นตัวขณะทำธุรกรรม และป้องกันอาการง่วงซึมซึ่งอาจนำไปสู่การกดตัวเลขผิดพลาด'],
+      [false,'ระบบความปลอดภัย','ไม่มีระบบตั้งรหัสผ่าน PIN, สแกนใบหน้า หรือสแกนลายนิ้วมือ','เพื่อการเข้าถึงแอปพลิเคชันที่รวดเร็ว ไร้รอยต่อ'],
+      [false,'สกุลเงิน','รองรับเฉพาะ THB','ยังไม่อนุญาตให้ใช้ USD ในแพ็กเกจเริ่มต้น'],
+      [false,'ฟอนต์แอปพลิเคชัน','รูปแบบพื้นฐาน Comic Sans ขนาด 8px','เพื่อความกะทัดรัดและประหยัดพื้นที่หน้าจอ'],
+      [false,'ความเร็วการประมวลผล','โหมดประหยัดพลังงานเซิร์ฟเวอร์','ล็อกความเร็วสูงสุดไว้ที่ 4G (ไม่รองรับ 5G/6G) เพื่อร่วมลดภาวะโลกร้อน'],
+      [false,'การแจ้งเตือน (Notifications)','ปิดการแจ้งเตือนทุกประเภท','เข้าสู่โหมด Digital Detox เพื่อลดความรบกวนให้คุณมีสมาธิกับชีวิตขั้นสุด'],
+      [false,'โควต้าปุ่มย้อนกลับ (Back)','5 ครั้ง/วัน','เพื่อฝึกความรอบคอบก่อนเปลี่ยนหน้าจอ หากเกินโควต้ากรุณารีสตาร์ทแอป']
+    ],
+    featuresTitle:'รายการฟีเจอร์ที่คุณจะ (ต้อง) ได้รับ:',
+    features:[
+      [true,'Phone Number Login: เข้าระบบด้วยเบอร์โทรศัพท์เท่านั้น (ลดภาระการจดจำรหัสผ่าน)'],
+      [true,'Daily Financial Lesson: บังคับรับชมวิดีโอความรู้ทางการเงินจนจบ ก่อนเปิดใช้งานแอปครั้งแรกของวัน'],
+      [true,'Human Verification: ระบบ CAPTCHA "กรุณาเลือกรูปเหรียญบาท" ทุกครั้งที่เพิ่มเงิน (เพื่อป้องกันบอทและดึงสติ)'],
+      [true,'24-Hour Cooling Period: โอนเงินต้องรออนุมัติ 24 ชม. (เพื่อลดพฤติกรรมการใช้อารมณ์ตัดสินใจ)'],
+      [true,'Double-Check System: ป็อปอัป "แน่ใจหรือไม่?" 3 รอบก่อนกดยืนยัน (เพื่อความปลอดภัยสูงสุดของเงินคุณ)'],
+      [true,'Zero Decimal Policy: ปัดเศษสตางค์ทิ้งอัตโนมัติ (เพื่อความสะอาดตาของบัญชี)'],
+      [true,'Cultural Preservation Mode: แสดงยอดเงินและประวัติการทำรายการทั้งหมดเป็น "ตัวเลขไทย" เท่านั้น เช่น ฿๔,๙๙๙','เพื่อร่วมสืบสานและอนุรักษ์เอกลักษณ์ความเป็นชาติในโลกดิจิทัล']
+    ],
+    restrictionsTitle:'สิ่งที่ไม่ได้รวมอยู่ในแพ็กเกจนี้:',
+    restrictions:[
+      'ไม่อนุญาตให้เปลี่ยนเป็น Dark Mode (สงวนสิทธิ์การถนอมสายตาสำหรับแพ็กเกจพรีเมียม)',
+      'จำกัดชื่อเป้าหมายสูงสุด 3 ตัวอักษร',
+      'ล็อกยอดเป้าหมายสูงสุด ฿5,000',
+      'ไม่มีช่องค้นหาประวัติ ต้องเลื่อนไถด้วยตัวเอง'
+    ]
+  },
+  {
+    id:'plus', group:'individual', name:'PLUS', badges:[{text:'20% OFF'}], tagline:'สำหรับผู้ที่ต้องการอิสรภาพและยกระดับสุขภาวะทางการเงิน',
+    hero:['+3 กระเป๋าเป้าหมาย (ตั้งชื่ออิสระ)',['=','โอนเงินข้ามกระเป๋าได้ไม่จำกัด (อิสรภาพในการบริหารจัดการ)'],['~','เปลี่ยนระบบแสดงผลเป็นตัวเลขอารบิกสากล (เพื่อการคำนวณที่แม่นยำ)']],
+    oldPrice:'฿999', price:'฿799', priceNote:'ต่อเดือน (จ่ายรายเดือน)', cta:'Get Plus', saveNote:'ยกระดับคุณภาพชีวิตและสุขภาพจิตของคุณ',
+    limitsIcon:'unlock', limitsTitle:'ปลดล็อกข้อจำกัดระบบ (System Upgrades):',
+    limits:[
+      [true,'Visual Wellness (ระบบถนอมสายตา)','ปลดล็อกฟีเจอร์สลับโหมด Light / Dark Mode ได้อย่างอิสระ','เพื่อสุขภาวะทางสายตาที่ดีของคุณในทุกช่วงเวลา'],
+      [true,'Standard Security (ระบบความปลอดภัยมาตรฐาน)','เข้าสู่ระบบด้วย Email และตั้งรหัสผ่าน PIN 6 หลักได้','เพื่อปกป้องข้อมูลทางการเงินของคุณให้เป็นส่วนตัวมากยิ่งขึ้น และไม่ต้องพึ่งพาแค่เบอร์โทรศัพท์อีกต่อไป'],
+      [true,'Typography Upgrade (ยกระดับการอ่าน)','เปลี่ยนฟอนต์จาก Comic Sans 8px เป็นฟอนต์มาตรฐานสากล (San Francisco / Roboto)','เพื่อลดความเหนื่อยล้าของกล้ามเนื้อตาจากการเพ่งมองหน้าจอ'],
+      [true,'Network Optimization (ประมวลผลความเร็วสูง)','ย้ายสู่เซิร์ฟเวอร์ Priority รองรับความเร็วระดับ 5G','เพื่อการทำธุรกรรมที่ลื่นไหล สลิปเด้งทันที ไม่ต้องรอโหลด 15 วินาทีอีกต่อไป'],
+      [true,'Navigation Freedom (อิสระในการนำทาง)','ปลดล็อกโควต้าปุ่มย้อนกลับ (Back) สามารถกดได้ไม่จำกัดครั้ง','มอบอิสระในการท่องแอปพลิเคชันตามใจคุณ โดยไม่ต้องปิดแอปเปิดใหม่'],
+      [true,'Notification Control (ควบคุมการแจ้งเตือน)','ปลดล็อกการแจ้งเตือนแบบเรียลไทม์ (ไม่ต้องรอรับตอนตี 3)','เพื่อให้คุณเชื่อมต่อกับทุกความเคลื่อนไหวทางการเงินอย่างทันท่วงทีในเวลาทำการ'],
+      [true,'ขีดจำกัดเพิ่มเงินและเป้าหมาย (Wealth Cap)','ขยายเพดานสูงสุด ฿1,000,000 ต่อบัญชี','ระบบขยายเพดานรองรับความมั่งคั่งของคุณ แต่จำกัดไว้ที่ 1 ล้านบาท เพื่อรักษาสมดุลทางจิตใจ ป้องกันความเครียดจากการหมกมุ่นกับตัวเลข และลดความเสี่ยงกรณีสมาร์ทโฟนสูญหาย']
+    ],
+    featuresTitle:'รายการฟีเจอร์ที่คุณจะได้รับ:',
+    features:[
+      [true,'Universal Display: ยกเลิกโหมดอนุรักษ์ความเป็นไทย เปลี่ยนมาแสดงผลด้วย "ตัวเลขอารบิก" สากล พร้อมคีย์บอร์ดพิมพ์ตัวเลขปกติ (บอกลาแถบสไลเดอร์)'],
+      [true,'Ad-Free & Instant Action: ยกเลิกโฆษณาเต็มจอ 30 วินาที, งดบังคับดูคลิปสอนออมเงินตอนเช้า และถอดระบบ CAPTCHA รูปเหรียญบาทออกทั้งหมด'],
+      [true,'Zero-Cooldown Transfer: ยกเลิกระยะเวลารอคอย 24 ชั่วโมง โอนเงินและเพิ่มเงินได้ทันทีแบบ Real-time (ไม่ต้องถามย้ำ 3 รอบอีกต่อไป)'],
+      [true,'Infinite Memory: ดูประวัติรายการย้อนหลังได้ตลอดกาล พร้อมเพิ่ม "ช่องค้นหา (Search)" พื้นฐาน'],
+      [true,'Profile Customization: มีหน้าแดชบอร์ดโปรไฟล์ส่วนตัว สามารถตั้งชื่อผู้ใช้งานและชื่อกระเป๋าได้ยาวกว่า 3 ตัวอักษร'],
+      [true,'Shareable Slips: ปลดล็อกระบบแคปหน้าจอตามปกติ เพื่อการแชร์สลิปที่สะดวกสบาย'],
+      [true,'Account Management: สามารถกดยื่นลบข้อมูลบัญชีได้ (เงื่อนไข: ศึกษาและยอมรับข้อตกลง 100 หน้า เพื่อให้แน่ใจว่าคุณเข้าใจผลกระทบอย่างถ่องแท้ หากเลื่อนอ่านเร็วเกินไป ระบบจะบังคับให้ทบทวนใหม่ตั้งแต่หน้า 1)']
+    ]
+  },
+  {
+    id:'ultra', group:'individual', name:'ULTRA SMOOTH', badges:[{text:'27% OFF'},{text:'✦ BEST VALUE',best:true}], tagline:'สำหรับผู้ใช้งานระดับโปรที่ต้องการประสบการณ์ทางการเงินไร้รอยต่อ',
+    hero:['Ultimate Freedom & Customization',['=','ไม่จำกัดกระเป๋าและรองรับทุกสกุลเงินทั่วโลก'],['~','ปรับแต่ง UI สลิป และเอฟเฟกต์ได้ทุกอณู']],
+    oldPrice:'฿10,990', price:'฿7,990', priceNote:'จ่ายครั้งเดียวจบ (Lifetime License)', cta:'Get Ultra Smooth', saveNote:'เอกสิทธิ์สูงสุด ซื้อครั้งเดียวครอบคลุมทุกการอัปเดตตลอดชีพ',
+    limitsIcon:'infinity', limitsTitle:'ปลดล็อกระบบขั้นสูงสุด (Premium Access):',
+    limits:[
+      [true,'Absolute Wealth Capacity (ขีดจำกัดความมั่งคั่งสูงสุด)','ปลดล็อกเพดานเงินฝากแบบไร้ขีดจำกัด (สูงสุด ฿9,999,999,999)','เพื่อรองรับอิสรภาพทางการเงินระดับ Ultra-High-Net-Worth Individual (UHNWI) ของคุณโดยไร้ข้อกังขา'],
+      [true,'Institutional-Grade Security (ความปลอดภัยระดับสถาบัน)','ปลดล็อกระบบยืนยันตัวตนเต็มรูปแบบด้วย บัตรประชาชน (e-KYC), อีเมล, และ Biometrics','เพื่อยกระดับการปกป้องสินทรัพย์ของคุณให้เทียบเท่ามาตรฐานระบบรักษาความปลอดภัยระดับธนาคารกลาง'],
+      [true,'True Black Experience (ประสบการณ์ทรูแบล็ค)','ปลดล็อกโหมด Dark Mode แบบ True Black ขจัดแสงสะท้อน','เพื่อความหรูหราเหนือระดับ ประหยัดพลังงานแบตเตอรี่สูงสุด และสะท้อนภาพลักษณ์ที่สุขุมลุ่มลึก'],
+      [true,'Limitless Architecture (สถาปัตยกรรมไร้ขอบเขต)','ไม่จำกัดจำนวนกระเป๋าเงิน (Unlimited Pockets)','ทลายทุกข้อจำกัดเดิม เพื่อการบริหารพอร์ตโฟลิโอทางการเงินที่ไร้พรมแดน'],
+      [true,'Smart Automation (ระบบฝากอัตโนมัติอัจฉริยะ)','ใช้งานระบบฝากและโอนเงินอัตโนมัติได้ไม่จำกัดจำนวนครั้ง','ให้เงินทำงานตามระบบที่คุณวางไว้ ในขณะที่คุณเอาเวลาไปโฟกัสกับการใช้ชีวิต'],
+      [true,'Absolute Customization (การปรับแต่งอิสระทุกอณู)','ไร้ข้อจำกัดในการดีไซน์','ปลดปล่อยจินตนาการของคุณลงบนหน้าจอ UI ได้อย่างสมบูรณ์แบบ']
+    ],
+    featuresTitle:'เอกสิทธิ์เฉพาะแพ็กเกจระดับ Ultra:',
+    features:[
+      [true,'Full Biometric & Identity Login: ปลดล็อกการเข้าสู่ระบบแบบไร้รอยต่อด้วย Face ID / สแกนลายนิ้วมือ พร้อมผูกบัญชีด้วยบัตรประจำตัวประชาชนและอีเมล (หมดกังวลเรื่องการเปลี่ยนเบอร์โทรศัพท์หรือลืมรหัสผ่าน)'],
+      [true,'Theme & Slip Builder: เครื่องมือออกแบบธีมแอปและหน้าตาสลิปเงินโอนของคุณเองแบบ Custom 100% พร้อมใส่แอนิเมชันและเอฟเฟกต์เสียง (บ่งบอกสเตตัสความพรีเมียมในทุกครั้งที่แชร์สลิป)'],
+      [true,'Infinite History & Search: เก็บประวัติการทำธุรกรรมแบบถาวรตลอดชีพ พร้อมระบบค้นหา (Search) และตัวกรองข้อมูลขั้นสูง'],
+      [true,'Professional Data Export: ส่งออกข้อมูลรายงานทางการเงินรูปแบบ CSV, PDF และ JSON แบบมืออาชีพ (พร้อมส่งตรงให้ผู้ตรวจสอบบัญชีส่วนตัวของคุณ)'],
+      [true,'Zero Distractions: ประสบการณ์สมูทที่สุด ไร้โฆษณา ไร้ลายน้ำ ไร้ระยะเวลารอคอย (Cooldown) ทุกปุ่มกดลื่นไหล ตอบสนองไวในระดับเสี้ยววินาที'],
+      [true,'Fast-Track Deletion: สิทธิ์ VIP ในการลบบัญชี 1 คลิก ไม่ต้องรอคิว ไม่ต้องทนไถอ่านข้อตกลง 100 หน้าอีกต่อไป (หมายเหตุ: มีค่าธรรมเนียมดำเนินการฉีกสัญญาก่อนกำหนด ฿199)'],
+      [true,'Lifetime Updates: รับฟีเจอร์และนวัตกรรมใหม่ของแอปพลิเคชันฟรีตลอดชีพ ซื้อครั้งเดียวจบ ไม่มีค่าใช้จ่ายรายเดือนแอบแฝง']
+    ]
+  },
+  {
+    id:'team', group:'business', minSeats:2, name:'TEAM', badges:[{text:'18% OFF'}], tagline:'สำหรับคู่รัก หุ้นส่วน หรือทีมขนาดเล็ก ที่ต้องการยกระดับความโปร่งใสแบบไร้รอยต่อ',
+    hero:['Shared Workspace & Credit Pool',['=','การอนุมัติธุรกรรมแบบกลุ่ม (ส่งเสริมการทำงานร่วมกัน)'],['~','แจ้งเตือนความเคลื่อนไหวทุกรายการ (ไร้ความคลุมเครือ)']],
+    oldPrice:'', price:'฿199', priceNote:'/ seat / month (บังคับซื้อขั้นต่ำ 2 ที่นั่ง)', priceSub:'ต่อเดือน (ชำระรายปี)', cta:'Get Team', saveNote:'สร้างวัฒนธรรมความเชื่อใจ ผ่านการตรวจสอบที่เข้มงวด',
+    limitsIcon:'lock', limitsTitle:'มาตรการควบคุมระบบ (System Governance):',
+    limits:[
+      [false,'ระดับความเป็นส่วนตัว (Privacy Level)','0% (แชร์ข้อมูลพฤติกรรมการใช้จ่ายทั้งหมดสู่ส่วนกลาง)','เพื่อสร้างบรรทัดฐานความโปร่งใส และลดความคลุมเครือภายในทีมของคุณให้เหลือศูนย์'],
+      [false,'ระยะเวลาดำเนินการ (SLA for Approvals)','กรอบเวลา 5 นาที สำหรับการยืนยันธุรกรรมร่วมกัน','เพื่อความรัดกุม หากไม่ได้รับการอนุมัติจากทุกคนในเวลาที่กำหนด ระบบจะยกเลิกรายการทันทีเพื่อปกป้องสินทรัพย์'],
+      [false,'สิทธิ์การดูแลระบบ (Admin Rights)','กระจายสิทธิ์เท่าเทียมกันทุกที่นั่ง','เพื่อความยุติธรรมสูงสุด ไม่มีสมาชิกท่านใดสามารถลบประวัติหรือซ่อนข้อมูลจากสมาชิกท่านอื่นได้'],
+      [false,'การติดตามตำแหน่ง (Location Tracking)','บังคับเปิด GPS ขณะทำธุรกรรมเสมอ','เพื่อเป็นหลักฐานอ้างอิงที่โปร่งใส และตรวจสอบแหล่งที่มาของการใช้จ่ายได้อย่างแม่นยำ']
+    ],
+    featuresTitle:'รายการฟีเจอร์ที่คุณจะ (ต้อง) ได้รับ:',
+    features:[
+      [true,'Multi-Signature Consensus: ทุกการโอนเงินออกจากกระเป๋ากองกลาง สมาชิกทุกคนในทีมต้อง "สแกนใบหน้าพร้อมกัน" เพื่ออนุมัติรายการ (ส่งเสริมการมีส่วนร่วมและป้องกันการตัดสินใจพลการ)'],
+      [true,'Radical Transparency Alerts: ระบบจะบรอดแคสต์ทุกความเคลื่อนไหว แม้กระทั่งกระเป๋าส่วนตัว (เช่น การซื้อของออนไลน์ หรือเติมเกม) ลงศูนย์กลางแชทกลุ่มทันทีแบบ Real-time'],
+      [true,'Auto-Snitch Report: สรุปรายงานพฤติกรรมการใช้เงินรายสัปดาห์ ส่งตรงถึงสมาชิกทุกคน เพื่อใช้ในการทบทวนแผนการเงินร่วมกัน']
+    ]
+  },
+  {
+    id:'scale', group:'business', minSeats:5, name:'SCALE', badges:[{text:'30% OFF'},{text:'✦ BEST VALUE',best:true}], tagline:'สำหรับธุรกิจครอบครัวและ SME ที่ต้องการสิทธิขาดในการควบคุมสินทรัพย์อย่างเบ็ดเสร็จ',
+    hero:['Centralized Administration',['=','อำนาจบริหารจัดการแบบเบ็ดเสร็จ (เพื่อปกป้ององค์กร)'],['~','ระบบเบิกจ่ายอิงเอกสาร (ตามหลักมาตรฐานการบัญชี)']],
+    oldPrice:'฿499', price:'฿349', priceNote:'/ seat / month (บังคับซื้อขั้นต่ำ 5 ที่นั่ง)', priceSub:'ต่อเดือน (ชำระรายปี)', cta:'Get Scale', saveNote:'ปกป้องสภาพคล่องขององค์กร ด้วยอำนาจการบริหารส่วนกลาง',
+    limitsIcon:'lock', limitsTitle:'มาตรการควบคุมระบบ (System Governance):',
+    limits:[
+      [false,'สิทธิ์การเข้าถึงสินทรัพย์ (Asset Accessibility)','ขึ้นอยู่กับดุลยพินิจของ Admin แต่เพียงผู้เดียว','สมาชิกจะไม่สามารถทำธุรกรรมใดๆ ได้ หากบัญชีถูกตั้งค่าให้อยู่ในสถานะเฝ้าระวังความเสี่ยง'],
+      [false,'เกณฑ์การพิจารณาเบิกจ่าย (Disbursement Criteria)','บังคับพิมพ์เหตุผลขั้นต่ำ 200 ตัวอักษร พร้อมแนบรูปถ่ายสถานที่จริง','เพื่อให้ทุกการลงทุนขององค์กรมีเอกสารประกอบที่ครบถ้วนและรัดกุม ตามหลักเกณฑ์การตรวจสอบบัญชี'],
+      [false,'กระบวนการอุทธรณ์ (Appeal Process)','ใช้เวลาพิจารณา 3-5 วันทำการ','สำหรับกรณีที่สมาชิกต้องการร้องขอให้ Admin พิจารณาปลดล็อกกระเป๋าเงิน']
+    ],
+    featuresTitle:'รายการฟีเจอร์ที่คุณจะ (ต้อง) ได้รับ:',
+    features:[
+      [true,'Emergency Asset Protection: Admin มีเอกสิทธิ์ในการกดปุ่ม "ระงับการเข้าถึง (Freeze)" กระเป๋าเงินส่วนตัวของสมาชิกคนใดก็ได้ทันทีเพียงปลายนิ้ว (เพื่อป้องกันความเสี่ยงด้านสภาพคล่องขององค์กรในภาวะวิกฤต)'],
+      [true,'Priority Queue for Firing: Admin สามารถเตะสมาชิกออกจากระบบได้ทันที โดยยอดเงินคงเหลือในกระเป๋าส่วนตัวของสมาชิกท่านนั้น จะถูก "โอนเข้ากระเป๋ากองกลางอัตโนมัติ" (เพื่อชดเชยความเสียหายให้แก่องค์กร)'],
+      [true,'Anonymous Integrity Reporting (SSO): ปุ่มลับสำหรับส่งรายงานพฤติกรรมการใช้เงินที่น่าสงสัยของเพื่อนร่วมงานถึง Admin โดยตรงแบบไม่ระบุตัวตน (เพื่อส่งเสริมธรรมาภิบาล และการตรวจสอบภายในที่มีประสิทธิภาพ)']
+    ]
+  },
+  {
+    id:'enterprise', group:'business', contactOnly:true, learnMore:true, name:'ENTERPRISE', badges:[{text:'✦ EXPERTS\' CHOICE',ribbon:true}], tagline:'โซลูชันระดับสถาบัน เพื่อการจัดลำดับชั้นข้อมูลและเพิ่มประสิทธิภาพบุคลากรขั้นสุดยอด',
+    hero:['Absolute Corporate Hierarchy',['=','ข้อมูลระดับโครงสร้าง (เพื่อการวิเคราะห์ศักยภาพ)'],['~','เชื่อมต่อบัญชีเงินเดือนอัตโนมัติ (เพิ่มประสิทธิภาพ HR)']],
+    oldPrice:'', price:'Let\'s talk', priceNote:'(ปรับราคาตามขนาดและโครงสร้างองค์กรของคุณ)', cta:'Contact Sales', saveNote:'ยกระดับอำนาจการบริหาร ด้วยเทคโนโลยีที่ไร้ข้อกังขา',
+    limitsIcon:'lock', limitsTitle:'มาตรการควบคุมระบบ (System Governance):',
+    limits:[
+      [false,'การมองเห็นข้อมูล (Hierarchical Data Visibility)','ผู้บริหารเห็นข้อมูล 100% / พนักงานทั่วไปเห็นยอดกองกลางเป็น 0% เสมอ','เพื่อลดความกดดันด้านผลประกอบการให้แก่บุคลากร และปกป้องความลับทางกลยุทธ์สูงสุด'],
+      [false,'ข้อตกลงการใช้งาน (Payroll Integration SLA)','บุคลากรต้องยินยอมให้ระบบเข้าถึงบัญชีเงินเดือนโดยอัตโนมัติ','เพื่อความคล่องตัวในการประมวลผลและการบริหารจัดการสวัสดิการแบบเบ็ดเสร็จ'],
+      [false,'สิทธิ์การโต้แย้ง (Dispute Rights)','ระดับ 0 (Zero Tolerance)','ไม่อนุญาตให้อุทธรณ์คำตัดสินทางการเงินที่ประมวลผลและวิเคราะห์โดยระบบ AI ขององค์กร']
+    ],
+    featuresTitle:'รายการฟีเจอร์ที่คุณจะ (ต้อง) ได้รับ:',
+    features:[
+      [true,'Deep Data Analytics: ผู้บริหารระดับสูงสามารถเข้าถึงข้อมูลธุรกรรมเชิงลึกของบุคลากรได้ทุกคนแบบ Real-time (เพื่อการประเมินศักยภาพและบริหารทรัพยากรบุคคลอย่างแม่นยำ)'],
+      [true,'Automated Liability Reconciliation: ระบบเชื่อมต่อ API เพื่อ "หักเงินออกจากกระเป๋าพนักงานเข้าสู่บัญชีบริษัทอัตโนมัติ" ทันทีที่ระบบตรวจพบการละเมิดเงื่อนไของค์กร (เพื่อลดภาระงานของฝ่าย HR และรักษาผลประโยชน์สูงสุด)'],
+      [true,'Delegated Top-up Tax: ระบบหักค่าธรรมเนียมส่วนต่าง (Tax) เมื่อพนักงานเติมเงินเข้าบัญชีส่วนตัว ยอดส่วนหนึ่งจะถูกโอนเข้าบัญชีผู้บริหารแบบเนียนๆ (เพื่อเป็นค่าบริหารจัดการโครงสร้างพื้นฐาน)'],
+      [true,'Executive AI Mentor: บอท AI ที่ถูกฝึกฝนด้วยภาษาเชิงกลยุทธ์ระดับผู้บริหาร คอยวิพากษ์วิจารณ์และตั้งคำถามอย่างกดดันต่อทุกคำขอเบิกงบหรือโอทีของบุคลากร (เพื่อกระตุ้นให้เกิดการพัฒนาศักยภาพ และสร้างวิสัยทัศน์ที่เฉียบคมแบบผู้นำ)']
+    ]
+  }
+];
+
+  /* per-plan motion settings: accent, English price note, and the two lines the camera stops on */
+  const FX = {
+    starter:   {acc:'#ffffff', tab:'#ffffff', note:'FREE FOREVER',
+                jokes:[{k:['l',3], a:'Default font:', b:'Comic Sans, <span class="tiny">8px.</span>', tiny:true},
+                       {k:['l',6], a:'Back button:', b:'5 taps a day.'}]},
+    plus:      {acc:'#43d67a', tab:'#43d67a', note:'PER MONTH',
+                jokes:[{k:['l',0], a:'Dark mode.', b:'Finally unlocked.'},
+                       {k:['f',6], a:'Delete your account?', b:'Read 100 pages first.'}]},
+    ultra:     {acc:'#ff4d5a', tab:'#ff7d87', note:'ONE-TIME · LIFETIME',
+                jokes:[{k:['l',0], a:'Wealth cap:', b:'<span class="cnt">฿0</span>', count:9999999999},
+                       {k:['f',5], a:'One-click delete.', b:'฿199 fee.'}]},
+    team:      {acc:'#ffffff', tab:'#ffffff', note:'PER SEAT / MONTH · MIN 2',
+                jokes:[{k:['l',3], a:'Location tracking:', b:'Always on.'},
+                       {k:['f',2], a:'Every week:', b:'Auto-Snitch Report.'}]},
+    scale:     {acc:'#eef0f3', tab:'#eef0f3', note:'PER SEAT / MONTH · MIN 5',
+                jokes:[{k:['f',0], a:'Freeze anyone.', b:'Anytime.'},
+                       {k:['f',1], a:'Priority Queue', b:'for Firing.'}]},
+    enterprise:{acc:'gold',    tab:'#f3cf6e', note:'CUSTOM PRICING',
+                jokes:[{k:['f',2], a:'Top up your wallet.', b:'The boss gets a cut.'},
+                       {k:['f',3], a:'An AI mentor', b:'that questions your OT.'}]}
+  };
+
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const icon = n => `<svg class="icon"><use href="#i-${n}"/></svg>`;
+  const planText = t => { const c = t.indexOf(': '); return c > 0 && c < 40 ? `<b>${esc(t.slice(0, c))}:</b> ${esc(t.slice(c + 2))}` : esc(t); };
+
+  // one card, rendered the way the app's renderPlans() does, with details open
+  function cardHTML(p){
+    const [heroTitle, ...heroLines] = p.hero || [];
+    const ribbon = p.badges.find(b => b.ribbon);
+    return `<article class="pcard ${p.id}" id="card-${p.id}">
+      ${ribbon ? `<div class="p-ribbon">${esc(ribbon.text)}</div>` : ''}
+      <header class="p-head"><h2>${esc(p.name)}${p.badges.filter(b => !b.ribbon).map(b => `<span class="p-badge${b.best ? ' best' : ''}">${esc(b.text)}</span>`).join('')}</h2><p>${esc(p.tagline)}</p></header>
+      ${heroTitle ? `<div class="p-hero"><b>${icon('sparkle')}<span>${esc(heroTitle)}</span></b>${heroLines.map(([m, t]) => `<p><span>${esc(m)}</span>${esc(t)}</p>`).join('')}</div>` : ''}
+      <div class="p-price">${p.oldPrice ? `<s>${esc(p.oldPrice)}</s>` : ''}<strong>${esc(p.price)}</strong><small>${esc(p.priceNote)}</small>${p.priceSub ? `<small class="sub">${esc(p.priceSub)}</small>` : ''}</div>
+      <div class="p-action"><div class="p-cta">${esc(p.cta)}</div>${p.saveNote ? `<p>${esc(p.saveNote)}</p>` : ''}</div>
+      ${p.minSeats ? `<div class="p-seats"><span>−</span><b>${p.minSeats} seats</b><span>+</span></div>` : ''}
+      ${p.learnMore ? `<div class="p-secondary">Learn more</div>` : ''}
+      <section class="p-limits"><h3>${icon(p.limitsIcon || 'lock')}<span>${esc(p.limitsTitle)}</span>${icon('info')}</h3>${p.limits.map(([ok, n, v, note]) => `<div class="p-limit ${ok ? 'yes' : 'no'}">${icon(ok ? 'check' : 'x')}<span><b>${esc(n)}</b><em>${esc(v)}</em>${note ? `<small>${esc(note)}</small>` : ''}</span></div>`).join('')}</section>
+      ${p.features ? `<section class="p-feat"><h3>${icon('sparkle')}<span>${esc(p.featuresTitle)}</span></h3><ul>${p.features.map(([ok, t, note]) => `<li class="${ok ? 'yes' : 'no'}">${icon(ok ? 'check' : 'x')}<span>${planText(t)}${note ? `<small>${esc(note)}</small>` : ''}</span></li>`).join('')}</ul></section>` : ''}
+      ${p.restrictions ? `<section class="p-feat rest"><h3>${icon('x-circle')}<span>${esc(p.restrictionsTitle)}</span></h3><ul>${p.restrictions.map(t => `<li class="no">${icon('x')}<span>${planText(t)}</span></li>`).join('')}</ul></section>` : ''}
+    </article>`;
+  }
+  function posterHTML(p){
+    const f = FX[p.id], gold = f.acc === 'gold';
+    const col = gold ? '' : `style="color:${f.acc}"`;
+    const badges = p.badges.map(b => `<i class="${b.ribbon ? 'gold' : b.best ? (p.id === 'scale' ? 'silver' : 'best') : ''}">${esc(b.text)}</i>`).join('');
+    const caps = f.jokes.map((j, i) => `<p class="c${i}"><span class="ca">${j.a}</span><span class="cb ${gold ? 'gold-t' : ''}" ${col}>${j.b}</span></p>`).join('');
+    return `<div class="lp" id="lp-${p.id}">
+      <div class="lp-name ${gold ? 'gold-t' : ''}" ${p.id === 'starter' || p.id === 'team' ? '' : col}>${p.name.split(' ').map(w => `<span class="w">${w}</span>`).join('')}</div>
+      <div class="lp-badges">${badges}</div>
+      <div class="lp-price">${p.oldPrice ? `<s>${esc(p.oldPrice)}<i></i></s>` : ''}<strong class="${gold ? 'gold-t' : ''}">${esc(p.price)}</strong></div>
+      <div class="lp-note">${f.note}</div>
+      <div class="lp-cap">${caps}</div>
+    </div>`;
+  }
+  $('#cam').innerHTML = PLAN_CATALOG.map(cardHTML).join('');
+  $('#posters').innerHTML = PLAN_CATALOG.map(posterHTML).join('');
+  $$('.lp-cap .ca').forEach(el => el.style.color = 'rgba(242,245,242,.6)');
+  $$('.lp-name .w').forEach(w => { if (w.textContent === 'ULTRA' || w.textContent === 'SMOOTH') w.parentElement.style.fontSize = '100px'; });
+
+  /* ---------- timeline helpers ---------- */
+  let tl;
+  const BLUR_IN = {opacity:0, filter:'blur(22px)', x:40, scale:1.35};
+  const SHARP   = {opacity:1, filter:'blur(0px)', x:0, scale:1};
+  function sceneIn(id, at, dur=.6){ tl.fromTo(id, {autoAlpha:0, scale:.94}, {autoAlpha:1, scale:1, duration:dur, ease:'power3.out'}, at); }
+  function sceneOut(id, at, dur=.55){ tl.fromTo(id, {autoAlpha:1, scale:1}, {autoAlpha:0, scale:1.1, duration:dur, ease:'power2.in', immediateRender:false}, at); }
+  function words(targets, at, stagger=.14, dur=.75){ tl.fromTo(targets, BLUR_IN, {...SHARP, duration:dur, stagger, ease:'expo.out'}, at); }
+  function assemble(logo, burst, at, big){
+    tl.fromTo(burst, {scale:0, opacity:.9}, {scale:1.9, opacity:0, duration:1.2, ease:'expo.out'}, at + .1);
+    tl.fromTo(logo, {scale:0, rotation:-14, transformOrigin:'50% 50%'}, {scale:big, rotation:0, duration:.85, ease:'back.out(1.6)'}, at);
+    tl.fromTo(logo + ' .p-top', {y:-26, opacity:0}, {y:0, opacity:1, duration:.45}, at + .5);
+    tl.fromTo(logo + ' .p-body', {y:30, scaleY:.2, opacity:0, transformOrigin:'50% 100%'}, {y:0, scaleY:1, opacity:1, duration:.6, ease:'back.out(1.8)'}, at + .65);
+    tl.fromTo(logo + ' .p-coin', {scale:0, transformOrigin:'50% 50%'}, {scale:1, duration:.45, ease:'back.out(3)'}, at + 1.0);
+  }
+  function beat(at, peak=.55){ tl.fromTo('#flash', {opacity:peak}, {opacity:0, duration:.45, ease:'power2.out', immediateRender:false}, at); }
+  // a real button press: tap ring + the button squashes and springs back
+  function press(el, cx, cy, at){
+    tl.fromTo('#tapRing', {x:cx, y:cy, scale:.45, opacity:1}, {x:cx, y:cy, scale:1.5, opacity:0, duration:.55, ease:'power2.out', immediateRender:false}, at);
+    tl.fromTo(el, {scale:1}, {scale:.86, duration:.09, ease:'power2.in', immediateRender:false}, at);
+    tl.to(el, {scale:1, duration:.45, ease:'back.out(3)'}, at + .09);
+  }
+
+  function build(){
+    tl = gsap.timeline({paused:true, defaults:{ease:'power3.out', duration:.6}});
+
+    /* ===== opening 0 → 4.9: logo assembles, pan right, zoom through ===== */
+    const box = el => ({l: el.offsetLeft, r: el.offsetLeft + el.offsetWidth});
+    const L = $('#l1'), o = i => box($('#o'+i));
+    const xL = 960 - 98, xA = 960 - o(0).r / 2, xB = 960 - (o(1).l + o(2).r) / 2;
+    tl.fromTo('#orow', {x:xL}, {x:xL, duration:.01}, 0);
+    assemble('#l1', '#burst1', .15, 1.6);
+    tl.to(L, {scale:1, duration:.8, ease:'power3.inOut'}, 1.75);
+    tl.to('#orow', {x:xA, duration:.8, ease:'power3.inOut'}, 1.75);
+    tl.fromTo('#o0', BLUR_IN, {...SHARP, duration:.8, ease:'expo.out'}, 2.0);
+    tl.fromTo('#odiv', {scaleY:0, opacity:0}, {scaleY:1, opacity:1, duration:.5, ease:'expo.out'}, 2.55);
+    tl.to('#orow', {x:xB, duration:1.0, ease:'power4.inOut'}, 2.75);
+    words(['#o1','#o2'], 3.0, .38, .65);
+    beat(3.0); beat(3.38);
+    tl.fromTo('#z1', {scale:1}, {scale:6, duration:.75, ease:'power4.in'}, 4.1);
+    tl.to('#z1', {opacity:0, duration:.25, ease:'none'}, 4.6);
+    tl.set('#s1', {autoAlpha:0}, 4.9);
+
+    /* ===== plans ===== */
+    sceneIn('#sp', 4.45, .4);
+    beat(4.55, .7);
+    tl.fromTo('#ui', {opacity:0, y:40, filter:'blur(18px)'}, {opacity:1, y:0, filter:'blur(0px)', duration:.7, ease:'expo.out'}, 4.5);
+
+    // measure the controls (stage coordinates) for pills and taps
+    const ui = $('#ui'), gtog = $('#gtog'), tabs = $('#tabs');
+    const gBtn = id => { const b = $(id); return {el:b, l:b.offsetLeft, w:b.offsetWidth, cx:120 + 2 + b.offsetLeft + b.offsetWidth/2, cy:70 + 2 + b.offsetTop + b.offsetHeight/2}; };
+    const tBtn = id => { const b = $(`.tset b[data-t="${id}"]`); return {el:b, l:b.offsetLeft + 8, w:b.offsetWidth, cx:120 + tabs.offsetLeft + 10 + b.offsetLeft + b.offsetWidth/2, cy:70 + tabs.offsetTop + 10 + b.offsetHeight/2}; };
+    const gI = gBtn('#gInd'), gB = gBtn('#gBiz');
+    gsap.set('#gpill', {x:gI.l, width:gI.w});
+    const t0 = tBtn('starter');
+    gsap.set('#tpill', {x:t0.l, width:t0.w});
+
+    const T = {starter:5.0, plus:11.4, ultra:17.8, team:25.0, scale:31.4, enterprise:37.8};
+    let prev = null;
+    PLAN_CATALOG.forEach(p => {
+      const at = T[p.id], f = FX[p.id], card = $('#card-' + p.id), lp = $('#lp-' + p.id), tb = tBtn(p.id);
+      const set = p.group === 'business' ? '#tsBiz b' : '#tsInd b';
+
+      if (p.id === 'team'){
+        // switch group: press "Business plans", pill slides, tab set swaps
+        const tg = 24.15;
+        press(gB.el, gB.cx, gB.cy, tg);
+        tl.to('#gpill', {x:gB.l, width:gB.w, duration:.5, ease:'back.out(1.3)'}, tg + .06);
+        tl.to('#tsInd', {opacity:0, y:-12, duration:.25}, tg + .12);
+        tl.fromTo('#tsBiz', {opacity:0, y:12}, {opacity:1, y:0, duration:.35}, tg + .3);
+        tl.to('#tpill', {x:tb.l, width:tb.w, duration:.45, ease:'back.out(1.3)'}, tg + .3);
+        beat(tg + .1, .5);
+      }
+
+      // tap the tab
+      press(tb.el, tb.cx, tb.cy, at);
+      tl.to('#tpill', {x:tb.l, width:tb.w, duration:.45, ease:'back.out(1.3)'}, at + .06);
+      tl.to($$(set).filter(b => b !== tb.el), {color:'#8d9095', duration:.25}, at + .06);
+      tl.to(tb.el, {color:f.tab, duration:.25}, at + .1);
+
+      // previous plan leaves
+      if (prev){
+        tl.to('#card-' + prev, {x:-320, autoAlpha:0, duration:.45, ease:'power2.in'}, at + .08);
+        tl.to('#lp-' + prev, {autoAlpha:0, y:-40, duration:.35, ease:'power2.in'}, at + .05);
+        tl.to('#cam', {scale:1, duration:.55, ease:'power3.inOut'}, at + .1);
+      }
+
+      // card slides in, poster type slams
+      tl.fromTo(card, {x:340, y:0, autoAlpha:0}, {x:0, y:0, autoAlpha:1, duration:.8, ease:'expo.out'}, at + .3);
+      tl.fromTo(lp, {autoAlpha:0, y:0}, {autoAlpha:1, y:0, duration:.01}, at + .3);
+      words($$('.lp-name .w', lp), at + .4, .12, .7);
+      tl.fromTo($$('.lp-badges i', lp), {scale:0, opacity:0}, {scale:1, opacity:1, duration:.45, stagger:.1, ease:'back.out(2.5)'}, at + .8);
+      const s = $('.lp-price s', lp), strong = $('.lp-price strong', lp);
+      if (s){
+        tl.fromTo(s, {opacity:0, y:20}, {opacity:1, y:0, duration:.4}, at + .9);
+        tl.fromTo($('i', s), {scaleX:0}, {scaleX:1, duration:.3, ease:'power2.inOut'}, at + 1.2);
+        tl.fromTo(strong, BLUR_IN, {...SHARP, duration:.7, ease:'expo.out'}, at + 1.35);
+        beat(at + 1.35, .45);
+      } else {
+        tl.fromTo(strong, BLUR_IN, {...SHARP, duration:.7, ease:'expo.out'}, at + 1.0);
+        beat(at + 1.0, .45);
+      }
+      tl.fromTo($('.lp-note', lp), {opacity:0, y:14}, {opacity:1, y:0, duration:.45}, at + 1.6);
+
+      // the camera stops on two rows of the real card; the caption lands after a beat
+      f.jokes.forEach((j, i) => {
+        const jt = at + 2.0 + i * 1.95;
+        const rows = j.k[0] === 'l' ? $$('.p-limit', card) : $$('.p-feat:not(.rest) li', card);
+        const row = rows[j.k[1]];
+        const y = 540 - 90 - (row.offsetTop + row.offsetHeight / 2);
+        tl.to(card, {y, duration:.9, ease:'power3.inOut'}, jt);
+        if (i === 0) tl.to('#cam', {scale:1.32, duration:.9, ease:'power3.inOut'}, jt);
+        tl.fromTo(row, {backgroundColor:'rgba(255,255,255,0)'}, {backgroundColor:'rgba(255,255,255,.11)', duration:.3}, jt + .8);
+        tl.to(row, {backgroundColor:'rgba(255,255,255,0)', duration:.3}, jt + 1.85);
+        const cap = $('.c' + i, lp);
+        if (i) tl.to($('.c0', lp), {opacity:0, y:-24, duration:.3, ease:'power2.in'}, jt + .3);
+        tl.fromTo($('.ca', cap), BLUR_IN, {...SHARP, duration:.6, ease:'expo.out'}, jt + .65);
+        tl.fromTo($('.cb', cap), BLUR_IN, {...SHARP, duration:.6, ease:'expo.out'}, jt + 1.05);
+        beat(jt + 1.05, .35);
+        if (j.tiny){
+          const em = $('em', row);
+          tl.fromTo(em, {fontSize:21}, {fontSize:7, duration:.55, ease:'power2.inOut'}, jt + 1.4);
+        }
+        if (j.count){
+          const el = $('.cnt', cap), c = {v:0};
+          tl.fromTo(c, {v:0}, {v:j.count, duration:1.0, ease:'power2.out', onUpdate:() => { el.textContent = '฿' + Math.round(c.v).toLocaleString('en-US'); }}, jt + 1.05);
+        }
+      });
+      prev = p.id;
+    });
+
+    /* ===== outro 44.0 → 49.0: same assembly, lands on the lockup ===== */
+    sceneOut('#sp', 43.8, .55);
+    const off8 = ($('#wm8').offsetWidth + 46) / 2;
+    tl.fromTo('#s8', {autoAlpha:0}, {autoAlpha:1, duration:.2}, 44.2);
+    tl.fromTo('#row8', {x:off8}, {x:off8, duration:.01}, 44.2);
+    assemble('#l8', '#burst8', 44.3, 1.6);
+    tl.to('#l8', {scale:1, duration:.8, ease:'power3.inOut'}, 45.85);
+    tl.to('#row8', {x:0, duration:.8, ease:'power3.inOut'}, 45.85);
+    tl.fromTo('#wm8', BLUR_IN, {...SHARP, duration:.8, ease:'expo.out'}, 46.1);
+    words('#tag8 .w', 46.6, .18, .7);
+    tl.fromTo('#note8', {opacity:0}, {opacity:1, duration:.6}, 47.2);
+    beat(46.6, .3);
+    tl.to({}, {duration:.01}, END - .01);
+
+    tl.time(END, false); tl.time(0, false);
+    tl.eventCallback('onUpdate', sync);
+    tl.eventCallback('onComplete', () => { if (loop) { tl.time(0, false); tl.play(); } else setPlaying(false); });
+  }
+
+  /* (this early version had no sound) */
+  const CUES = []; function ensureAudio(){} function fire(){}
+  END = 49; CHAPTERS = [{t:0,n:'Opening'},{t:5,n:'Starter'},{t:11.4,n:'Plus'},{t:17.8,n:'Ultra smooth'},{t:24.15,n:'Team'},{t:31.4,n:'Scale'},{t:37.8,n:'Enterprise'},{t:44,n:'Outro'}];
+
+  /* ---------- player ---------- */
+  let playing = false, loop = true, dragging = false;
+  const fill = $('#fill'), knob = $('#knob'), timeEl = $('#time'), track = $('#track');
+  const fmtT = t => { const s = Math.floor(t); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+  const rail = $('#rail'), nav = $('#chapters');
+  let chapBtns = [];
+  function makeChapters(){
+    track.setAttribute('aria-valuemax', END.toFixed(1));
+    chapBtns = CHAPTERS.map((c, i) => {
+      if (i) { const tk = document.createElement('i'); tk.className = 'tick'; tk.style.left = (c.t/END*100) + '%'; rail.appendChild(tk); }
+      const b = document.createElement('button');
+      b.className = 'chap'; b.type = 'button';
+      b.innerHTML = `<b>${fmtT(c.t)}</b>${c.n}`;
+      b.addEventListener('click', () => seek(c.t + .02));
+      nav.appendChild(b); return b;
+    });
+  }
+  // sound cues fire only while the clip plays forward normally, never while scrubbing
+  let lastT = 0;
+  function playCues(t){
+    if (playing && !dragging && t > lastT && t - lastT < .35) CUES.forEach(c => { if (c.t > lastT && c.t <= t) fire(c); });
+    lastT = t;
+  }
+  document.addEventListener('pointerdown', ensureAudio, true);
+  document.addEventListener('keydown', ensureAudio, true);
+
+  function sync(){
+    if (!tl) return;
+    const t = tl.time(), p = t / END;
+    playCues(t);
+    fill.style.transform = `scaleX(${p})`;
+    knob.style.left = (p*100) + '%';
+    timeEl.textContent = fmtT(t) + ' / ' + fmtT(END);
+    track.setAttribute('aria-valuenow', t.toFixed(1));
+    track.setAttribute('aria-valuetext', fmtT(t));
+    let ci = 0; CHAPTERS.forEach((c, i) => { if (t >= c.t) ci = i; });
+    chapBtns.forEach((b, i) => b.classList.toggle('on', i === ci));
+  }
+  function setPlaying(v){
+    playing = v;
+    $('#icPlay').hidden = v; $('#icPause').hidden = !v;
+    $('#btnPlay').setAttribute('aria-label', v ? 'Pause' : 'Play');
+    $('#bigplay').hidden = v;
+    if (!v) player.classList.remove('idle');
+  }
+  function play(){ if (!tl) return; if (tl.time() >= END - .02) tl.time(0, false); tl.play(); setPlaying(true); }
+  function pause(){ if (!tl) return; tl.pause(); setPlaying(false); }
+  function toggle(){ playing ? pause() : play(); }
+  function seek(t){
+    if (!tl) return;
+    t = Math.max(0, Math.min(END, t));
+    tl.time(t, false); sync();
+    if (playing && t < END) tl.play();
+  }
+
+  $('#btnPlay').addEventListener('click', toggle);
+  $('#btnRestart').addEventListener('click', () => { seek(0); play(); });
+  $('#btnSnd').addEventListener('click', e => {
+    ensureAudio(); soundOn = !soundOn;
+    e.currentTarget.classList.toggle('off', !soundOn);
+    e.currentTarget.setAttribute('aria-pressed', String(soundOn));
+    $('#icSnd').hidden = !soundOn; $('#icMute').hidden = soundOn;
+  });
+  $('#btnLoop').addEventListener('click', e => {
+    loop = !loop; e.currentTarget.classList.toggle('off', !loop);
+    e.currentTarget.setAttribute('aria-pressed', String(loop));
+  });
+  screen.addEventListener('click', toggle);
+
+  let wasPlaying = false;
+  const tAt = e => { const r = track.getBoundingClientRect(); return Math.max(0, Math.min(END, (e.clientX - r.left) / r.width * END)); };
+  track.addEventListener('pointerdown', e => {
+    dragging = true; wasPlaying = playing; if (tl) tl.pause();
+    track.setPointerCapture(e.pointerId);
+    if (tl) { tl.time(tAt(e), false); sync(); }
+  });
+  track.addEventListener('pointermove', e => { if (dragging && tl) { tl.time(tAt(e), false); sync(); } });
+  const endDrag = () => { if (!dragging) return; dragging = false; if (wasPlaying) play(); };
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+  track.addEventListener('keydown', e => {
+    if (!tl) return;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); seek(tl.time() + (e.key === 'ArrowLeft' ? -1 : 1)); }
+    if (e.key === 'Home') { e.preventDefault(); seek(0); }
+    if (e.key === 'End')  { e.preventDefault(); seek(END); }
+  });
+
+  function enterFake(){ player.classList.add('ffs'); document.body.classList.add('noscroll'); requestAnimationFrame(fit); }
+  function exitFake(){ player.classList.remove('ffs', 'idle'); document.body.classList.remove('noscroll'); requestAnimationFrame(fit); }
+  function toggleFs(){
+    if (player.classList.contains('ffs')) { exitFake(); return; }
+    if (document.fullscreenElement || document.webkitFullscreenElement){
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document)?.catch?.(()=>{}); return;
+    }
+    const req = player.requestFullscreen || player.webkitRequestFullscreen;
+    if (!req) { enterFake(); return; }
+    try {
+      const r = req.call(player);
+      const lock = () => { try { window.screen.orientation?.lock?.('landscape')?.catch?.(()=>{}); } catch(_){} };
+      if (r && r.then) r.then(lock).catch(enterFake);
+      else setTimeout(() => { if (!document.fullscreenElement && !document.webkitFullscreenElement) enterFake(); else lock(); }, 300);
+    } catch(_) { enterFake(); }
+  }
+  $('#btnFs').addEventListener('click', toggleFs);
+  document.addEventListener('fullscreenchange', () => requestAnimationFrame(fit));
+  document.addEventListener('webkitfullscreenchange', () => requestAnimationFrame(fit));
+  window.addEventListener('resize', () => requestAnimationFrame(fit));
+  let idleT;
+  player.addEventListener('pointermove', () => {
+    player.classList.remove('idle'); clearTimeout(idleT);
+    idleT = setTimeout(() => { if (playing && isFs()) player.classList.add('idle'); }, 1600);
+  });
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('button, .track')) { if (e.key === 'f' || e.key === 'F') toggleFs(); return; }
+    if (e.key === ' ' || e.key === 'k') { e.preventDefault(); toggle(); }
+    else if (e.key === 'ArrowLeft')  { e.preventDefault(); if (tl) seek(tl.time() - 1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); if (tl) seek(tl.time() + 1); }
+    else if (e.key === 'f' || e.key === 'F') toggleFs();
+    else if (e.key === 'Escape' && player.classList.contains('ffs')) exitFake();
+  });
+
+  const fontsReady = Promise.all([
+    document.fonts.load('700 150px Anuphan', 'MePocket Pick a plan'),
+    document.fonts.load('800 116px Anuphan', 'STARTER'),
+    document.fonts.load('400 24px "Noto Sans Thai"', 'ข้อจำกัด'),
+    document.fonts.load('800 24px "Noto Sans Thai"', 'ข้อจำกัด'),
+    document.fonts.load('500 24px "IBM Plex Mono"', '0')
+  ]).catch(()=>{});
+  Promise.race([fontsReady, new Promise(r => setTimeout(r, 2500))]).then(() => {
+    if (!window.gsap) { timeEl.textContent = 'Animation library failed to load. Refresh the page.'; return; }
+    fit(); build(); makeChapters(); sync();
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { tl.time(END - .3, false); sync(); setPlaying(false); }
+    else play();
+  });
+})();
+</script>

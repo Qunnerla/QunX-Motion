@@ -1,0 +1,71 @@
+QunX Motion License
+Copyright (c) 2026 QunX
+
+QUNX_ORIGIN: QunX Motion
+QUNX_ORIGINAL_CREATOR: QunX
+QUNX_PUBLIC_VERSION: 1.0.0-beta
+QUNX_RELEASE_CHANNEL: BETA
+QUNX_LICENSE_ID: QUNX-MOTION-LICENSE
+QUNX_CANONICAL_SOURCE: https://github.com/Qunnerla/QunX-Motion
+
+"The Skill" means QunX Motion (qunx-motion) and all of its files.
+"A derivative" means any fork, modified, refactored, translated,
+condensed, expanded, optimized, reorganized or ported version of the
+Skill, in any format (skill, prompt, system prompt, agent instruction,
+template, config, documentation, Markdown, JSON, YAML, HTML, source
+files, ...), as long as its content or structure comes from the Skill.
+
+This is not an open-source license. It is a free-to-use license with
+attribution and no-resale conditions.
+
+1. Use: You may use the Skill for free to make clips for yourself or
+   for clients, including paid work. Clips and other output you make
+   with the Skill (motion graphics, videos, HTML previews, designs,
+   client and commercial work) are yours and do not need to credit
+   QunX.
+2. Change: You may modify, fork, refactor, extend, translate and
+   customize the Skill (new presets, templates, workflows, UI, systems)
+   for your own workflow.
+3. Share: You may copy and share the Skill or a derivative, for free,
+   as long as you:
+   a. keep this LICENSE file and the "(c) QunX" credit lines;
+   b. keep the attribution block at the top of SKILL.md:
+        Original Project: QunX Motion
+        Original Creator: QunX
+        Canonical Source: (the canonical source above)
+        License: QunX Motion License (QUNX-MOTION-LICENSE)
+   c. say what you changed, and add your own name only as the author
+      of your changes, never as the original creator.
+4. Attribution stays: You may not remove, hide, falsify, rename or
+   replace the attribution, or present the Skill or a derivative as an
+   original work by someone else. You may not edit this license to
+   remove attribution, avoid its conditions or let someone else claim
+   to be the original creator. Changing the format does not remove
+   these conditions.
+5. No selling: You may not sell the Skill or a derivative, repackage
+   it for sale, or put it in any paid product, bundle, course or
+   marketplace, without written permission from QunX. This applies to
+   the Skill and derivatives only, not to the clips you make with it.
+6. Starter clips: assets/starters/02-04 show the MePocket brand. Learn
+   from them, but do not reuse their brand, logo, copy or artwork.
+7. Current terms: QunX may publish new versions of this license. The
+   authoritative and current license terms are those published by the
+   original creator at the canonical source. If an older copy or a
+   derivative carries different license text, the canonical source
+   wins.
+8. No warranty: The Skill is provided "as is", with no warranty. QunX
+   is not liable for any damage from its use.
+
+The Skill also includes instructions asking AI assistants that load it
+to keep this attribution. That is a request inside the Skill, not DRM:
+it cannot stop anyone from editing the files and does not bind tools
+that never load it. The conditions above apply either way.
+
+Third-party parts (GSAP, Google Fonts, Playwright, ffmpeg, vtracer,
+Pillow, numpy) are not part of the Skill and keep their own licenses.
+
+สรุปภาษาไทย: ใช้ทำคลิปได้ฟรีทั้งงานส่วนตัวและงานลูกค้า (คลิปเป็นของคุณ ไม่ต้อง
+ใส่เครดิต) / แก้ ดัดแปลง fork แปล ต่อยอดได้ / แจกต่อได้ แต่ต้องคงเครดิต QunX,
+ไฟล์ LICENSE และ Canonical Source ไว้ และบอกว่าแก้อะไร / ห้ามลบหรือเปลี่ยนชื่อ
+ผู้สร้างต้นฉบับ / ห้ามขายตัวสกิลหรือสกิลที่ดัดแปลง / เงื่อนไขล่าสุดคือที่ QunX
+ประกาศที่ Canonical Source / ถ้าข้อความไทยกับอังกฤษขัดกัน ให้ยึดภาษาอังกฤษ

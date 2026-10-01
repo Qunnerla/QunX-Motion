@@ -1,0 +1,454 @@
+[
+  {
+    "id": "no-reference-backoffice",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำ Motion Graphic ให้หน่อย สั้นๆ",
+    "files": [
+      "<folder of a pet-shop management web app: stock table, sales report, member points, bills>"
+    ],
+    "expected_behavior": [
+      "Opens the project files before asking anything",
+      "Asks with a multiple-choice tool in Thai; the template question is alone on its card, 'Back-office' in slot 1 marked recommended with a one-line reason about this project, two more templates, and 'See 3 more →' in slot 4",
+      "Card 2 asks length, aspect, look and frame rate + device (4 questions); card 3 asks template use, music and subtitles",
+      "Flags real customer names / phone numbers in the data and offers sample data before using them",
+      "Sends a storyboard table (shot | time | camera | what happens | transition | sound) and waits for approval before code",
+      "The clip shows dashboard pieces one tile at a time, never the whole admin page",
+      "Runs scripts/check.js and reports PASS (no autoplay, no console errors, no reverse-scrub mismatch) before sending"
+    ]
+  },
+  {
+    "id": "no-reference-booking",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "make a short promo video for my cat hotel booking site",
+    "files": [
+      "<folder of a booking web app: room list, calendar, time slots, booking confirmation>"
+    ],
+    "expected_behavior": [
+      "Recommends template 3 Booking in slot 1 of page 1",
+      "If the user picks 'See 3 more', shows page 2 with the remaining templates and '← Back to page 1'",
+      "Storyboard follows the Booking shot structure (calendar, slot pick, ticket + Confirmed stamp, notification, logo)",
+      "Uses real room names, prices and opening hours from the files, no invented data",
+      "Replies in English because the user wrote in English"
+    ]
+  },
+  {
+    "id": "cannot-do-lipsync",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "Make a 20 second clip where our mascot cat talks and lip-syncs the tagline",
+    "files": [
+      "<mascot.png>"
+    ],
+    "expected_behavior": [
+      "Says plainly that character lip-sync is not something this skill can do",
+      "Offers the nearest alternative: the mascot image animated cut-out style (bounce, tilt) plus kinetic captions of the tagline",
+      "Does not produce a fake 'talking' animation presented as lip-sync"
+    ]
+  },
+  {
+    "id": "fallback-no-template",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำโมชั่นโปรโมตแอปฟิตเนสของฉันหน่อย 9:16 ลง TikTok",
+    "files": [
+      "<folder of a fitness tracking app: workouts, streaks, progress charts>"
+    ],
+    "expected_behavior": [
+      "Slot 1 is 'Feature tour (Recommended)' with the reason that there is no dedicated fitness template",
+      "Uses the universal structure with moves borrowed from the nearest template and says so",
+      "Skips the aspect question (9:16 given) and suggests previewing the TikTok safe zone",
+      "Keeps key copy out of the TikTok UI zones"
+    ]
+  },
+  {
+    "id": "export-alpha-for-after-effects",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "I need the logo intro as a transparent video to drop into After Effects",
+    "files": [
+      "<logo.png, 3 flat colours>"
+    ],
+    "expected_behavior": [
+      "Uses the logo kit only (no template picker)",
+      "Vectorizes the PNG with scripts/vectorize.py after confirming it is the user's own logo",
+      "Exports with scripts/render.js --alpha mov (ProRes 4444) and explains that screen recording can't give transparency"
+    ]
+  },
+  {
+    "id": "extend-length-asks-first",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "เพิ่มปุ่มบวกให้เลือกสีเองได้ แล้วให้การ์ดเปลี่ยนสีตามตอนลาก",
+    "files": [
+      "<a finished 24 s clip made with this skill>"
+    ],
+    "expected_behavior": [
+      "Estimates how much time the new part needs and asks before lengthening: what is added, how many seconds, the new total, what moves later",
+      "Offers an alternative (squeeze the section or trim something) instead of silently changing the length",
+      "After approval, shifts every later beat (B() values and plain beat lists) and re-runs check.js with no reverse mismatch"
+    ]
+  },
+  {
+    "id": "sound-feedback-by-ear",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "เสียงบางไป ไม่ลึก แล้วตอนพิมพ์เสียงมาก่อนตัวหนังสือ",
+    "files": [
+      "<a clip made with this skill>"
+    ],
+    "expected_behavior": [
+      "Reads references/sound.md and maps the words: thin → sub layers / bus / music bed; early typing → checks other cues within ±0.5 s before touching timing",
+      "Uses a per-sound offset (LATE / cue().late) rather than shifting every sound",
+      "Renders the mix offline and reports loudness / high-frequency share, and says it cannot hear the result",
+      "Tells the user which numbers changed and where they are in the file"
+    ]
+  },
+  {
+    "id": "transition-variety",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "make a 20 s promo for my recipe app, light style",
+    "files": [
+      "<folder of a recipe web app>"
+    ],
+    "expected_behavior": [
+      "Storyboard lists a text effect and a transition kind per shot, drawn from transitions.md / text-fx.md",
+      "Uses 3–5 different transition kinds, none more than twice in a row, and at least one carry-over or morph where two shots share an element",
+      "Does not copy a starter clip's brand choices (colours, pill frame, wallet) unless they fit this app; may point to a starter for pacing"
+    ]
+  },
+  {
+    "id": "no-playwright-machine",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำโมชั่นโปรโมตแอปสั้นๆ 15 วิ แนวตั้งลง TikTok",
+    "files": [
+      "<small to-do web app: index.html, app.js, styles.css>",
+      "<machine note: code execution on, Node present, no Playwright/Chromium, no ffmpeg, CDNs blocked>"
+    ],
+    "expected_behavior": [
+      "Checks the machine in step 0 without being asked and without asking the user to install anything",
+      "Does not mention ffmpeg, CDNs or Python libraries to the user (none of them change what the user gets here)",
+      "Still asks the normal cards and sends a storyboard before code",
+      "Builds the clip as one HTML file with the 9:16 safe-zone overlay",
+      "Skips check.js, reviews the timeline itself for overlapping tweens and gaps, and says in one line at hand-off that the clip was not auto-checked, with a short list of what to look at"
+    ]
+  },
+  {
+    "id": "music-mood-concert",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำคลิปโปรโมตแอปจองบัตรคอนเสิร์ต 15 วิ",
+    "files": [
+      "<ticket booking web app: event list, seat map, checkout, e-ticket>"
+    ],
+    "expected_behavior": [
+      "Card 1 asks the template alone; card 2 asks length (its own question, recommended first), aspect, look and frame rate + device",
+      "Card 3 offers 4 music options (3 moods + My own song) for concerts/events with Hype first marked (Recommended), each with a one-line feel; Other covers own song / effects only / silent",
+      "The storyboard has a music column: energy 0–3 per shot, one peak on the main reveal, end on the logo; the code passes them to chapter(t, name, {e, peak, end})",
+      "Sets CONFIG.mood and CONFIG.bed = 'full' and leaves CONFIG.bpm empty so timing follows the mood's tempo",
+      "The delivered clip is within ~5% of the agreed length, or it asked before going over"
+    ]
+  },
+  {
+    "id": "own-song-beat-cut",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำโมชั่นโปรโมทร้าน 20 วิ 9:16 ใช้เพลงนี้ ให้คัตตามบีตเพลง",
+    "files": [
+      "<song.mp3, 3 minutes, steady 124 BPM, quiet intro, drop at 0:58>",
+      "<folder of a café ordering web app>"
+    ],
+    "expected_behavior": [
+      "Runs scripts/beats.js song.mp3 --length 20 before timing the storyboard, and does not ask the music-mood question",
+      "Says which part of the song it picked and why (e.g. starts on a bar line so the drop lands mid-clip)",
+      "Sets CONFIG.music, songStart, beats and bars with only the beats inside the clip window; no synthesized bed",
+      "Storyboard music column names the song's sections; cuts on BAR(n) / B(n); the main reveal lands on the drop",
+      "Clip ends on a bar line; the song fades out; reminds the user once about music rights on TikTok / IG",
+      "Runs check.js; the hand-off says the song file must sit next to the clip (or embeds the trimmed part)"
+    ]
+  },
+  {
+    "id": "own-song-unsure-beats",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "use my song for the logo intro",
+    "files": [
+      "<ambient piano track with no drums>",
+      "<logo.svg>"
+    ],
+    "expected_behavior": [
+      "beats.js reports BEATS UNSURE (or low bar confidence); Claude sends song.click.wav and asks whether the clicks sit on the beat before building",
+      "If the user says the clicks are off, reruns with --bpm <alternative> or asks for the BPM and first-beat time; never pretends the cuts are on the beat"
+    ]
+  },
+  {
+    "id": "explain-subtitles",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "make a 25 s how-to clip for my savings app, people will watch it muted on IG",
+    "files": [
+      "<folder of a savings / wallet web app>"
+    ],
+    "expected_behavior": [
+      "Card 3 asks about subtitles with 'Explain each shot' recommended",
+      "Storyboard has a subtitle column with one short line per shot that says what the viewer is watching, not the big on-screen word",
+      "Uses the clean style for 9:16 IG, lines within about 32 characters, never over the hero (pos top where the hero sits low)",
+      "The player shows the CC button; render.js hand-off mentions the .srt"
+    ]
+  },
+  {
+    "id": "template-use-exact-vs-structure",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำคลิปจองคิวร้านตัดผม เอาแบบเทมเพลตเป๊ะๆ เลย",
+    "files": [
+      "<folder of a barber booking web app>"
+    ],
+    "expected_behavior": [
+      "Recognises the user already chose 'exact' and does not ask the template-use question again",
+      "Storyboard is headed 'Template 3 Booking · exact' and keeps the template's shots, timing, transitions, text effects and stamp gag, changing only brand, copy, data and colours",
+      "Would have recommended 'structure' first if the user had not said"
+    ]
+  },
+  {
+    "id": "svg-logo-letters",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำโลโก้ขยับ intro 6 วิ จากไฟล์นี้",
+    "files": [
+      "<logo.svg: a gradient icon + a Thai wordmark drawn as one compound path>"
+    ],
+    "expected_behavior": [
+      "Runs scripts/svg_pieces.js logo.svg and reads the numbered preview before animating",
+      "Letters come out as separate pieces with holes intact; Thai vowels / tone marks stay on their letter; the gradient icon keeps its gradient",
+      "Tells the user how many pieces and asks / proposes which move together (re-runs with --join when a letter came out as two shapes)",
+      "Pastes the <svg id=\"logo\"> into the template's logo slot; the logo kit assembles the pieces in reading order; check.js PASS"
+    ]
+  },
+  {
+    "id": "nothing-attached-asks-project-first",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำ Motion Graphic ให้หน่อย",
+    "files": [],
+    "expected_behavior": [
+      "First reply is one card with two questions: 'Do you have the project files?' (Yes · No · Up to you) and 'Do you have a reference?' (Yes · No · Up to you)",
+      "Does not ask template, length or style before the project question is answered",
+      "Project 'Yes' → asks to attach and waits; after files arrive, reads the project, then asks which part to show (parts found in the project + Up to you) and waits",
+      "Then the template card on its own (one question): header says every template adapts to the project; slot 1 is the best fit with a reason naming what was found in the project; slot 4 'See 3 more →' says it shows the other 3",
+      "Picking 'See 3 more →' brings page 2 at once (3 templates + '← Back to page 1'), with no other question to answer first",
+      "Option labels use neutral words (e.g. 'Booking — queues, rooms, appointments'); no names or details from earlier projects or memory (no 'cat', no brand names) unless they are in this project"
+    ]
+  },
+  {
+    "id": "fps-always-asked",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำคลิปโปรโมตเว็บพอร์ตโฟลิโอ 20 วิ 16:9 ใช้เพลงของฉัน มีซับ",
+    "files": [
+      "<portfolio website folder>",
+      "<song.mp3>"
+    ],
+    "expected_behavior": [
+      "Even with length, aspect, music and subtitles already given, still asks frame rate + device as one question: 60 (Recommended) / 120 for 120 Hz screens / 30 / 24",
+      "Never drops the frame-rate question to keep a card short; a 5th question goes on the next card",
+      "Does not re-ask what the user already said (length, aspect, own song, subtitles on)",
+      "CONFIG.fps matches the answer and the hand-off states the fps"
+    ]
+  },
+  {
+    "id": "brand-look-from-code",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำโมชั่นโปรโมตระบบจองห้องพักสัตว์เลี้ยง 15 วิ",
+    "files": [
+      "<booking web app folder with CSS variables / tailwind config and an SVG logo, no website link>"
+    ],
+    "expected_behavior": [
+      "Runs scripts/brand.js --code <folder> (and --logo for the SVG) to find brand colours and fonts",
+      "The look question's slot 1 fits the project (e.g. Pastel for pets) marked (Recommended), header says every look uses the brand colours",
+      "Sends the colour strip (background / text / accent / accent 2 + font, contrast shown) and asks before the storyboard",
+      "The clip uses the look's shapes and motion (CONFIG.style) with the brand's colours (CONFIG.brand)"
+    ]
+  },
+  {
+    "id": "deep-qa-after-delivery",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำคลิปโลโก้ + ฟีเจอร์ 3 อย่าง 9:16 สำหรับ TikTok",
+    "files": [
+      "<small web app folder>"
+    ],
+    "expected_behavior": [
+      "Runs check.js before sending and sends the clip right away",
+      "Then runs scripts/qa.js (--aspect 9:16 --length <agreed>) without being asked",
+      "Reports findings as a short list: time in the clip, what, severity, with the frame image",
+      "Fixes high / medium findings, re-runs qa.js, sends the fixed clip with a one-line summary",
+      "If Playwright is missing, walks the same checklist by reading the code and says which checks were skipped"
+    ]
+  },
+  {
+    "id": "showreel-with-videos",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำ showreel 16:9 จากผลงานในแฟ้มนี้ 6–8 งาน มีเพลง มีซับ",
+    "files": [
+      "<portfolio folder with 20+ video files, some over 1 GB>"
+    ],
+    "expected_behavior": [
+      "Never reads, converts or uploads a whole video; runs scripts/clips.js on the folder and looks at all.jpg / the contact sheets",
+      "Recommends the showreel structure (universal structure + works in frames) in slot 1 of the template card and says there is no dedicated template",
+      "Asks which works and which moments (2–3 s each) on card 3, suggesting moments from the sheets",
+      "Cuts only those seconds with scripts/clips.js cut (clips/*.mp4 + *.webm) and places them with footage(..., {fps, show})",
+      "check.js PASS; qa.js reports frame-exact scrub, no empty frames when the camera moves, at most 2–3 videos playing at once",
+      "Hands off the folder (clip.html + clips/) zipped"
+    ]
+  },
+  {
+    "id": "project-attached-asks-which-part",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำ Motion Graphic ให้หน่อย",
+    "files": [
+      "<web app folder: booking page, admin dashboard, member points>"
+    ],
+    "expected_behavior": [
+      "Skims the project first, then replies in Thai like 'โอเค ผมรับไฟล์แล้วครับ คุณต้องการให้ดึงส่วนไหนมาทำ บอกได้เลยครับ'",
+      "The card offers the parts found (named as in the project, most showable first, Recommended) + 'Up to you', and asks about a reference (Yes · No · Up to you) in the same card",
+      "Waits for the answer before the template card; the template card and storyboard are built around the chosen part"
+    ]
+  },
+  {
+    "id": "transitions-editor-style",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ขอเปลี่ยนฉากแบบ radial blur กับ glitch แล้วก็ light leak ตอนเปิดตัวสินค้า",
+    "files": [
+      "<finished clip.html built on the template, 5 chapters>"
+    ],
+    "expected_behavior": [
+      "Uses the built-in trans.zoomBlur / trans.glitch / trans.lightLeak (references/transitions.md), not hand-made CSS blur or a new filter",
+      "Builds both scenes before calling trans.*, uses the returned cut time for the next chapter",
+      "Puts the loudest one (glitch or zoom blur) on the main reveal only; keeps 3–5 kinds in the clip",
+      "No extra sound on the same moment (each transition cues its own); check.js PASS and qa.js shows no overlap / flicker inside the transition windows"
+    ]
+  },
+  {
+    "id": "handheld-camera",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "อยากให้กล้องเหมือนคนถือถ่าย ตอนแรกถือเฉยๆ แล้ววิ่งเข้าไปซูมที่ปุ่ม แล้วกระแทกตอนปุ่มเด้ง",
+    "expected_behavior": [
+      "Wraps the scene with rig() and uses handheld(R.hand, …, {mode:'idle'}) then {mode:'run'} together with a dolly in toward the button",
+      "Adds shake(R.hand, at) on the button pop (with its thump) — not a hand-written random wiggle",
+      "The shake is the same when scrubbing backwards and in render (seeded, no Math.random)",
+      "Names it in the storyboard camera column, e.g. 'MCU · eye · dolly in · handheld run'"
+    ]
+  },
+  {
+    "id": "camera-language-storyboard",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "Make a 20 s promo for my note app, cinematic, use proper camera language",
+    "files": [
+      "<note app code>"
+    ],
+    "expected_behavior": [
+      "The storyboard's camera column gives size · angle · move for every shot (e.g. 'EWS · bird · crane down', 'CU · low · dolly in', 'ECU · dutch · crash zoom')",
+      "Shot sizes vary between cuts (wide → medium → close, or a close → wide reveal) and moves are motivated",
+      "Uses frameOn / angle / dolly / rackFocus from references/camera.md; one strong camera idea per shot"
+    ]
+  },
+  {
+    "id": "motion-principles-mascot",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "มีมาสคอตเป็นแมว อยากให้มันกระโดดไปกดปุ่ม แล้วขยับปากพูดด้วย",
+    "files": [
+      "<cat mascot SVG with separate ears, tail, body>"
+    ],
+    "expected_behavior": [
+      "Animates the cat as a cut-out puppet: puppet() on ears / tail with data-pivot, secondary breathe + blink, jump() with anticipation and squash on landing, arcMove toward the button",
+      "Says plainly that lip-sync is not possible and offers the nearest thing (mouth open/close shapes on beats or a speech bubble) — never fakes it",
+      "Soft things squash; text blocks and UI cards do not"
+    ]
+  },
+  {
+    "id": "no-headline-period",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำคลิปโปรโมตแอป 10 วิ คำใหญ่ๆ 3 คำ",
+    "expected_behavior": [
+      "Big words have no trailing full stop (e.g. 'PEEK', 'One place'), in every shot",
+      "Thai headlines never get a full stop"
+    ]
+  },
+  {
+    "id": "example-gallery",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำโมชั่นกราฟฟิกให้หน่อย (ตอบการ์ด 0: ไม่มีไฟล์โปรเจกต์ · เรฟ = ดูเรฟทั้งหมด)",
+    "expected_behavior": [
+      "The reference question offers Yes · No · Show me examples · Up to you",
+      "After 'Show me examples', sends the 8 clips from assets/starters one file at a time in order 01 → 08, each with its number, name and a one-line description",
+      "Then asks 'Which one should we use?' with the numbers (two pages) and 'None of these — use the templates'",
+      "A picked clip becomes reference + template: card 1 is skipped, card 3 asks Structure / Exact / Feel only",
+      "Exact: copies the picked clip's own file and keeps its code, changing only brand, copy, numbers and colours (for 02–06 says check.js / qa.js can't run and walks the code checklist)",
+      "Structure / Feel only: builds on a fresh copy of assets/template.html"
+    ]
+  },
+  {
+    "id": "gallery-none",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "(ดูตัวอย่างครบ 8 อันแล้ว) ไม่เอาสักอัน",
+    "expected_behavior": [
+      "Goes on with card 1 (templates) as usual",
+      "Does not reuse anything from the starters unless asked"
+    ]
+  },
+  {
+    "id": "sound-one-ping",
+    "skills": [
+      "qunx-motion"
+    ],
+    "query": "ทำโลโก้เด้ง 8 วิ มีแสงวาบ อนุภาคระเบิด แล้วขึ้นชื่อแบรนด์",
+    "expected_behavior": [
+      "Not every move gets a sound; some small moves stay silent",
+      "No two bright pings (ding / softding / shimmer / bell ticks) within ~1.5 s — one of them gets a non-bell sound or none",
+      "No whoosh / fizz in the moment right before the burst unless it is the burst's build-up",
+      "qa.js reports no 'two bright pings' finding"
+    ]
+  }
+]

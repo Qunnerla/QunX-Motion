@@ -1,0 +1,38 @@
+{
+  "name": "qunx-motion",
+  "version": "1.0.0-beta",
+  "private": true,
+  "description": "Claude skill: motion graphics as one HTML file (GSAP) + check / qa / render / brand / beats / clips / svg-pieces scripts",
+  "author": "QunX",
+  "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "check": "node scripts/check.js",
+    "qa": "node scripts/qa.js",
+    "render": "node scripts/render.js",
+    "brand": "node scripts/brand.js",
+    "beats": "node scripts/beats.js",
+    "clips": "node scripts/clips.js",
+    "pieces": "node scripts/svg_pieces.js"
+  },
+  "dependencies": {
+    "gsap": "3.12.5",
+    "@fontsource/inter-tight": "^5.0.0",
+    "@fontsource/noto-sans-thai": "^5.0.0"
+  },
+  "peerDependencies": {
+    "playwright": ">=1.40"
+  },
+  "peerDependenciesMeta": {
+    "playwright": {
+      "optional": true
+    }
+  },
+  "qunx": {
+    "QUNX_ORIGIN": "QunX Motion",
+    "QUNX_ORIGINAL_CREATOR": "QunX",
+    "QUNX_PUBLIC_VERSION": "1.0.0-beta",
+    "QUNX_RELEASE_CHANNEL": "BETA",
+    "QUNX_LICENSE_ID": "QUNX-MOTION-LICENSE",
+    "QUNX_CANONICAL_SOURCE": "https://github.com/Qunnerla/QunX-Motion"
+  }
+}
