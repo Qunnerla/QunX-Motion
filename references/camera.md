@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # Camera language: shot sizes, angles, moves, handheld
 
 A motion clip has a camera even when nothing is filmed. Pick a shot size, an angle and a move for **every** shot in the storyboard (the "Camera" column: `CU · low angle · dolly in · handheld walk`). The helpers live in template section 6b; the world camera `cam()` / `camAt()` from section 4 still works for one flat world.

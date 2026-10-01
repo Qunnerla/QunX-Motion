@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // The user's own videos inside a clip — WITHOUT opening whole video files (a 2 GB showreel stalls a chat for minutes).
 //
 // 1) look:  node clips.js <folder or video files…> [--out clips-out] [--thumbs 6]

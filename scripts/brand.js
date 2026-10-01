@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // Brand colours + fonts for a clip, from (in this order) a website, the app's code, an SVG logo.
 // usage: node brand.js [https://site | page.html] [--code <project folder>] [--logo logo.svg]
 //                      [--look pastel] [--out brand.json] [--swatch brand-swatch] [--shot site.png]

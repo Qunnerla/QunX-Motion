@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // Check a clip before sending it:
 //   frames at every chapter + mid-transition, forward vs reverse scrub (must match),
 //   console errors, no autoplay on open, captions inside the frame, text leaving the frame.

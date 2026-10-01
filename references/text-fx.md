@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # Text effects: pick a few, keep each role consistent
 
 Choose **2–3 effects per clip**: one for headings, one for sub-lines / captions, optionally one for numbers. Keep the same effect for the same role through the clip; change it only for one special moment. Pick by style (below) and offer the choice in the storyboard when the user cares about type.

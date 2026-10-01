@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+# © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 # needs: pip install vtracer pillow numpy
 # logo image (png/jpg/webp) -> clean SVG, one <g id="partN" class="lp"> per separate piece
 # usage: python3 vectorize.py logo.png 3 logo.svg     (3 = number of colours in the logo, not counting the background)

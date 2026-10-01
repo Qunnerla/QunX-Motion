@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # The user's own videos in a clip (footage)
 
 For portfolios, showreels, app demos with screen recordings, product videos: the user's video plays **inside a frame** of the motion graphic, on the clip's timeline.

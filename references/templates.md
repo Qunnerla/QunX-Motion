@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # Templates, logo kit and the universal structure
 
 ## Contents

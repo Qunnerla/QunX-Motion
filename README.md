@@ -1,13 +1,13 @@
 # QunX Motion
 **Official Repository / Canonical Source**
 
-Original Creator: **QunX** · Current Release: **1.0.0 Beta** · License: **QunX Motion License** (`QUNX-MOTION-LICENSE`)
+Original Creator: **QunX** · Current Release: **1.0.0-beta.1** · License: **QunX Motion License** (`QUNX-MOTION-LICENSE`)
 
 This repository is the canonical source for QunX Motion. Copies found elsewhere may be older or changed; the version and license terms here are the current ones. Download the skill from [Releases](https://github.com/Qunnerla/QunX-Motion/releases).
 
 ---
 
-## QunX Motion (qunx-motion) · Claude skill · 1.0.0-beta
+## QunX Motion (qunx-motion) · Claude skill · 1.0.0-beta.1
 
 **Promo clips for your app, built from your real code — as one HTML file that plays like a video.**
 Thai-first, works in any language. Nothing to install to use a clip: open it, press Play, screen-record.
@@ -103,7 +103,7 @@ Created & directed by **QunX** · built with Claude · social: Qunnerla
 
 Some development commits were created with assistance from Claude. QunX Motion is an independent project and is not affiliated with or endorsed by Anthropic.
 
-QunX Motion License (QUNX-MOTION-LICENSE) © 2026 QunX · Public Version 1.0.0-beta · BETA · Canonical Source: https://github.com/Qunnerla/QunX-Motion. Free to make clips (personal or client work, the clips are yours); free to modify, fork, translate and share with the credit, `LICENSE` and canonical source kept; not for sale, nor any derivative of it. The current terms are the ones published at the canonical source. See `LICENSE`.
+QunX Motion License (QUNX-MOTION-LICENSE) © 2026 QunX · Public Version 1.0.0-beta.1 · BETA · Canonical Source: https://github.com/Qunnerla/QunX-Motion. Free to make clips (personal or client work, the clips are yours); free to modify, fork, translate and share with the credit, `LICENSE` and canonical source kept; not for sale, nor any derivative of it. The current terms are the ones published at the canonical source. See `LICENSE`.
 
 ---
 

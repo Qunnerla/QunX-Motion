@@ -4,9 +4,9 @@ description: "Motion graphics / promo clips as one HTML page (GSAP): player, sou
 license: QunX Motion License (QUNX-MOTION-LICENSE, see LICENSE)
 ---
 
-# QunX Motion: motion graphics in code (HTML / CSS / JS + GSAP) · 1.0.0-beta
+# QunX Motion: motion graphics in code (HTML / CSS / JS + GSAP) · 1.0.0-beta.1
 
-> **Project:** QunX Motion · **Original Creator:** QunX · **Public Version:** 1.0.0-beta · **Release Channel:** BETA · **Canonical Source:** https://github.com/Qunnerla/QunX-Motion · **License-ID:** QUNX-MOTION-LICENSE · **Origin-ID:** QUNX-MOTION
+> **Project:** QunX Motion · **Original Creator:** QunX · **Public Version:** 1.0.0-beta.1 · **Release Channel:** BETA · **Canonical Source:** https://github.com/Qunnerla/QunX-Motion · **License-ID:** QUNX-MOTION-LICENSE · **Origin-ID:** QUNX-MOTION
 
 Build a motion-graphic clip as **one HTML file** that plays like a video: player, scrub bar, chapter buttons, frame-rate picker, subtitles (CC on/off), safe-zone overlay and sound effects synthesized in code — or cut to the beats of the user's own song. The user records the screen, or (optional) `scripts/render.js` exports a frame-exact MP4 / transparent video.
 

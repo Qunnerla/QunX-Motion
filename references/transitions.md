@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # Transitions: a menu, not one house style
 
 Every shot hands over to the next (core rule 4), but **how** changes from clip to clip. Pick per clip from this menu by the template, the style and what the two shots share. In one clip: 3–5 different kinds, none used more than twice in a row, and the strongest one saved for the main reveal. Offer 2 options in the storyboard where a cut can go either way.

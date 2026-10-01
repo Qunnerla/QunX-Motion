@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # Effects: motion principles, particles, shapes, type, light, devices
 
 Template section 6c. Everything here is drawn from the clip time (seeded, no `Math.random`), so scrubbing backwards, `check.js` and `render.js` all see the same frame. Use a few per clip, the ones that serve the story — never all of them.

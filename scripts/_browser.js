@@ -1,4 +1,4 @@
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // shared helpers for check.js / render.js / brand.js
 // needs Playwright:  npm i playwright   (or playwright-core + a Chromium; set CHROMIUM_PATH=/path/to/chrome)
 const fs = require('fs');

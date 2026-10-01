@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // Split an SVG logo into pieces the logo kit can animate: letters out of one-path wordmarks (holes stay with their letter),
 // marks and dots stay on their letter (i, j, Thai vowels and tone marks), every piece wrapped IN PLACE as <g class="lp">
 // so gradients, clip paths and parent transforms keep working. Pieces are numbered in reading order (data-order).

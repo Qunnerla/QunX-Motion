@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // Read the user's song: tempo, every beat, bar starts, sections (intro / build / drop / break / outro) and accents,
 // so the clip can be cut to the song's own beats. Nothing is uploaded anywhere; the file is read on this machine.
 // usage: node beats.js song.mp3 [--length 20] [--bpm 128] [--click] [--out song.beats.json]

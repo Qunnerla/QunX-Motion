@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # Real app UI as pieces (not screenshots, not whole screens)
 
 Render the app's real code **one piece at a time** (a card, the wallet, a button, an input, a goal box). It matches the app to the pixel and can move through its real states. Never lift a whole screen (app header, page background, profile, tab bar): the clip turns into a screen recording. Only if the user asks.

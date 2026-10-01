@@ -1,8 +1,8 @@
 # Changelog
 
-All notable changes to QunX Motion. Versions only go up: `1.0.0-beta` → `1.0.0-beta.2` → … → `1.0.0` → `1.0.1` (fixes) / `1.1.0` (features) / `2.0.0` (breaking).
+All notable changes to QunX Motion. Versions only go up: `1.0.0-beta.1` → `1.0.0-beta.2` → … → `1.0.0` → `1.0.1` (fixes) / `1.1.0` (features) / `2.0.0` (breaking).
 
-## 1.0.0-beta — 2026-10-01
+## 1.0.0-beta.1 — 2026-10-01
 
 First public beta, published at the canonical source.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // Frame-exact export (optional — screen recording stays the default way to get a video).
 // Steps the timeline one frame at a time, screenshots the stage, renders the sound offline, muxes with ffmpeg.
 //

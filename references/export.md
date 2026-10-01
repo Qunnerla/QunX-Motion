@@ -1,4 +1,4 @@
-<!-- © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A -->
+<!-- © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A -->
 # Getting a video out
 
 Screen recording is the default (nothing to install, feels "real"). `scripts/render.js` is optional, for users with Node + ffmpeg who want frame-exact files.

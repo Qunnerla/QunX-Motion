@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// © 2026 QunX · qunx-motion 1.0.0-beta · QX-MGH-7F3A
+// © 2026 QunX · qunx-motion 1.0.0-beta.1 · QX-MGH-7F3A
 // Deep bug check AFTER the clip was sent (check.js stays the quick check before sending).
 //   picture  : a frame every --step s in every promised aspect — text cut by the frame / its box, text on text, subtitles over
 //              the main text, platform UI zones (9:16), unreadable contrast, tiny text, placeholders, black / empty frames,
