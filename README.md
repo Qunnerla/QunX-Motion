@@ -12,9 +12,9 @@ This repository is the canonical source for QunX Motion. Copies found elsewhere 
 **Promo clips for your app, built from your real code — as one HTML file that plays like a video.**
 Thai-first, works in any language. Nothing to install to use a clip: open it, press Play, screen-record.
 
-![MePocket Motion — made with this skill](examples/mepocket-motion.gif)
+![QunX Motion — made with this skill](examples/qunx-motion.gif)
 
-*An early clip made with this skill — the wallet, cards and goal box are the app's real UI pieces, moved by the app's own layout code.*
+*The first seconds of the QunX Motion showcase, made with this skill: the logo bursts into particles, a skill is dropped into a chat and the prompt is typed.*
 
 ## What it does
 
