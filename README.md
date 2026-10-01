@@ -101,6 +101,8 @@ The skill links to these; they are not part of it and keep their own licenses:
 ## Credit & license
 Created & directed by **QunX** · built with Claude · social: Qunnerla
 
+Some development commits were created with assistance from Claude. QunX Motion is an independent project and is not affiliated with or endorsed by Anthropic.
+
 QunX Motion License (QUNX-MOTION-LICENSE) © 2026 QunX · Public Version 1.0.0-beta · BETA · Canonical Source: https://github.com/Qunnerla/QunX-Motion. Free to make clips (personal or client work, the clips are yours); free to modify, fork, translate and share with the credit, `LICENSE` and canonical source kept; not for sale, nor any derivative of it. The current terms are the ones published at the canonical source. See `LICENSE`.
 
 ---
