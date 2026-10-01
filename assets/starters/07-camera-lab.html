@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Stacko Hook</title>
+<title>QunX Hook</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;700;800;900&family=Noto+Sans+Thai:wght@500;700;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -68,7 +68,7 @@ html.alpha,html.alpha body,html.alpha .screen,html.alpha .stage,html.alpha .scen
 .card ul{list-style:none;padding:0;margin-top:auto}
 .card li{display:flex;align-items:center;gap:.5em;font-weight:500}
 .card .tk{display:inline-grid;place-items:center;width:1.3em;height:1.3em;border-radius:50%;background:var(--accent);color:var(--bg);font-weight:900;font-size:.8em}
-/* ---- Stacko clip v2 ---- */
+/* ---- QunX clip v2 ---- */
 .mono{font-family:'JetBrains Mono',ui-monospace,monospace;letter-spacing:.06em;font-weight:500}
 .serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400;letter-spacing:-.01em}
 .serif .it{font-style:italic;color:var(--accent2)}
@@ -157,7 +157,7 @@ html.alpha,html.alpha body,html.alpha .screen,html.alpha .stage,html.alpha .scen
   <div class="screen" id="screen"><div class="stage" id="stage">
     <!-- 1 · hook: brand types in, trapezoid strips flip / unfold in -->
     <section class="scene" id="s1"><div class="dots"></div><div class="center" id="hookWrap">
-      <div id="brand"><svg id="brandMark" viewBox="0 0 200 200"><circle cx="100" cy="100" r="84" fill="none" stroke="var(--accent)" stroke-width="18"/><rect x="68" y="58" width="64" height="22" rx="11" fill="var(--accent2)"/><rect x="56" y="89" width="88" height="22" rx="11" fill="var(--fg)"/><rect x="44" y="120" width="112" height="22" rx="11" fill="var(--fg)"/></svg><span id="brandTxt">Stacko</span></div>
+      <div id="brand"><svg id="brandMark" viewBox="0 0 200 200"><circle cx="100" cy="100" r="84" fill="none" stroke="var(--accent)" stroke-width="18"/><rect x="68" y="58" width="64" height="22" rx="11" fill="var(--accent2)"/><rect x="56" y="89" width="88" height="22" rx="11" fill="var(--fg)"/><rect x="44" y="120" width="112" height="22" rx="11" fill="var(--fg)"/></svg><span id="brandTxt">QunX</span></div>
       <div id="stkFit"><div id="stk">
         <div class="sp" id="sp1" style="background:var(--accent2)"><span class="t fx">NOT TOO MUCH</span></div>
         <div class="sp" id="sp2" style="background:#111214"><span class="t fx">JUST</span></div>
@@ -1246,7 +1246,7 @@ const chip5 = pill(R5.dolly, 'synced ✓', {left:px(W / 2 + M * 0.42), top:px(H 
 // S6 · cream: "ONE PLACE" + a CTA off to the right (run in, whip to it)
 const S6 = mkScene('x6', 'linear-gradient(180deg,#fbf6ee,#f2eadc)'), R6 = rig(S6);
 dotsBg(layer(R6, 0.4), 'rgba(17,18,20,.08)');
-const w6 = layer(R6, 1); bigWord(w6, 'ONE PLACE', 0.26, {color:'#111214'}); const cta6 = pill(w6, 'Try Stacko →', {left:px(W * 1.12), top:px(H * 0.45), background:'#ff3d8b', color:'#fff', fontSize:px(M * 0.08)});
+const w6 = layer(R6, 1); bigWord(w6, 'ONE PLACE', 0.26, {color:'#111214'}); const cta6 = pill(w6, 'Try QunX →', {left:px(W * 1.12), top:px(H * 0.45), background:'#ff3d8b', color:'#fff', fontSize:px(M * 0.08)});
 // S7 · dark warm: "FOCUS" over a grid (dolly zoom)
 const S7 = mkScene('x7', 'radial-gradient(70% 90% at 50% 50%,#3a1f14,#120a08 80%)'), R7 = rig(S7);
 const grid7 = mk(R7.dolly, {inset:'-10%', backgroundImage:'linear-gradient(rgba(255,170,90,.22) 2px,transparent 2px),linear-gradient(90deg,rgba(255,170,90,.22) 2px,transparent 2px)', backgroundSize:`${px(M * 0.09)} ${px(M * 0.09)}`, transformOrigin:'50% 50%'});
@@ -1262,7 +1262,7 @@ bigWord(R9.dolly, '5 apps', 0.16, {left:'25%', color:'#8a8698'}); bigWord(R9.dol
 // S10 · the logo lockup
 const S10 = mkScene('x10', 'radial-gradient(60% 80% at 50% 50%,#ffffff,#f1eef5 85%)'), R10 = rig(S10);
 const l10 = layer(R10, 1); mk(l10, {left:'50%', top:'42%', transform:'translate(-50%,-50%)', width:px(M * 0.22), height:px(M * 0.22), borderRadius:'50%', border:`${px(M * 0.035)} solid #4b4ff5`, boxSizing:'border-box'});
-bigWord(l10, 'Stacko', 0.14, {top:'68%', color:'#111214'}); mk(l10, {left:'50%', top:'81%', transform:'translateX(-50%)', fontFamily:"'Instrument Serif',serif", fontStyle:'italic', fontSize:px(M * 0.06), color:'#ff3d8b', whiteSpace:'nowrap'}, 'just everywhere');
+bigWord(l10, 'QunX', 0.14, {top:'68%', color:'#111214'}); mk(l10, {left:'50%', top:'81%', transform:'translateX(-50%)', fontFamily:"'Instrument Serif',serif", fontStyle:'italic', fontSize:px(M * 0.06), color:'#ff3d8b', whiteSpace:'nowrap'}, 'just everywhere');
 
 /* ---------- the timeline ---------- */
 // S2: arrives out of the lens (the hook's pull-through) · CU → WS dolly out on 3 parallax layers · handheld idle
@@ -1342,7 +1342,7 @@ hudAt(T10, '10 · IN: 3D FLIP · LENS FLARE ACCENT · HANDHELD IDLE');
 
 // S11: star mask in · the call to action, a shake when the button lands
 const S11 = mkScene('x11', '#111214'), R11 = rig(S11);
-bigWord(R11.dolly, 'Try it free', 0.17, {color:'#fff', top:'42%'}); const cta11 = pill(R11.dolly, 'stacko.app', {left:'50%', top:'64%', transform:'translateX(-50%)', background:'#ff3d8b', color:'#fff', fontSize:px(M * 0.07)});
+bigWord(R11.dolly, 'Try it free', 0.17, {color:'#fff', top:'42%'}); const cta11 = pill(R11.dolly, 'QunX Motion', {left:'50%', top:'64%', transform:'translateX(-50%)', background:'#ff3d8b', color:'#fff', fontSize:px(M * 0.07)});
 const T11 = trans.shapeMask(S10, S11, 27.8, {dur:0.7, shape:'star'});
 chapter(27.8, 'Star mask · shake', {e:2, end:true});
 tl.fromTo(cta11, {scale:0, autoAlpha:0}, {scale:1, autoAlpha:1, duration:0.35, ease:'back.out(2.4)', transformOrigin:'50% 50%'}, 28.8); shake(R11.hand, 29.05, {amp:0.9});
