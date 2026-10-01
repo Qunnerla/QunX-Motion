@@ -16,6 +16,12 @@ Thai-first, works in any language. Nothing to install to use a clip: open it, pr
 
 *The first seconds of the QunX Motion showcase, made with this skill: the logo bursts into particles, a skill is dropped into a chat and the prompt is typed.*
 
+### From an example to your own clip
+
+![Starter 08 from the example gallery (top) and the clip made from it with QunX Motion (bottom)](examples/example-vs-result.gif)
+
+*Top: starter 08, picked from the skill's example gallery. Bottom: the clip QunX Motion built from it with "Exact": the same shots, timing and moves, with the user's own brand, copy and logo. Both clips were made with this skill by QunX.*
+
 ## What it does
 
 - **Say "make me a short motion graphic"** — the skill first asks for your project files (or a link), reads them, then asks in short clickable cards, recommended option first: one of **6 templates** (data beat-cut, feature tour, booking, menu & order, shop, back-office) on its own card → length, aspect, look and **frame rate + device** → how to use the template, music, subtitles.
